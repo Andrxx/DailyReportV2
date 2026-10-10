@@ -1,0 +1,21 @@
+@page "/admin/migration"
+
+<PageTitle>Миграция БД</PageTitle>
+
+<div class="max-w-3xl px-4 py-6">
+    <p class="mb-2 text-sm"><a href="/admin" class="fluent-link">&larr; Администрирование</a></p>
+    <h1 class="page-title">Миграция БД</h1>
+
+    <div class="mt-4 rounded-card border border-stroke bg-neutral-layer-2 p-4 shadow-card">
+        <button type="button" @onclick="RunMigration" class="fluent-btn-accent" disabled="@IsRunning">
+            @(IsRunning ? "Проведение миграций..." : "Провести миграцию")
+        </button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Message))
+    {
+        <div class="mt-4 rounded-card border border-stroke bg-neutral-layer-2 p-4 shadow-card">
+            <p class="whitespace-pre text-sm text-foreground-1">@Message</p>
+        </div>
+    }
+</div>

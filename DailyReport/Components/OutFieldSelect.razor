@@ -1,0 +1,45 @@
+@* Выбор значения из списка с опцией «— свой вариант —»: при выборе маркера под
+   списком появляется поле свободного ввода. Родитель передаёт готовое значение
+   селекта (маркер, если выбран ручной ввод) и текст поля, поэтому состояние
+   «свой вариант» живёт в родителе, здесь только отрисовка и события. *@
+<div class="out-field">
+    <select class="fluent-input out-edit" value="@Value" @onchange="OnChange">
+        <option value="">—</option>
+
+        @foreach (var option in Options)
+        {
+            <option value="@option">@option</option>
+        }
+
+        <option value="@OutFieldSelect.CustomOption">— свой вариант —</option>
+    </select>
+
+    @if (Custom)
+    {
+        <input type="text" class="fluent-input out-edit out-field-manual" placeholder="Наименование организации"
+               value="@ManualValue" @oninput="OnInput" />
+    }
+</div>
+
+@code {
+    /// <summary>Значение-маркер «свой вариант»: пишется в селект, в модель не попадает.</summary>
+    public const string CustomOption = "__custom__";
+
+    /// <summary>Варианты списка, уже прочитанные из конфигурации.</summary>
+    [Parameter] public string[] Options { get; set; } = Array.Empty<string>();
+
+    /// <summary>Что показывает селект: значение списка или <see cref="CustomOption"/>.</summary>
+    [Parameter] public string Value { get; set; } = string.Empty;
+
+    /// <summary>Текст поля ручного ввода — то, что реально хранится в модели.</summary>
+    [Parameter] public string? ManualValue { get; set; }
+
+    /// <summary>Показывать ли поле ручного ввода.</summary>
+    [Parameter] public bool Custom { get; set; }
+
+    /// <summary>Пользователь выбрал пункт списка или «свой вариант».</summary>
+    [Parameter] public EventCallback<ChangeEventArgs> OnChange { get; set; }
+
+    /// <summary>Пользователь печатает в поле ручного ввода.</summary>
+    [Parameter] public EventCallback<ChangeEventArgs> OnInput { get; set; }
+}

@@ -1,0 +1,1224 @@
+/* Базовые стили проекта — собственная верстка, токены палитры Windows/Fluent 2 лежат в tailwind.css (@theme). */
+
+body {
+    background: var(--color-neutral-layer-1, #FAFAFA);
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+:root {
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
+.app-main {
+    padding: 0.5rem 1rem 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 600;
+    margin: 0.5rem 0 1rem;
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+.fluent-link {
+    color: var(--color-accent, #0F6CBD);
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.fluent-link:hover {
+    color: var(--color-accent-hover, #0A4E8A);
+    text-decoration: underline;
+}
+
+/* Фирменное фокус-кольцо Fluent: белый зазор + акцентное кольцо снаружи. */
+.focus-fluent:focus-visible {
+    outline: none;
+    border-radius: 4px;
+    box-shadow: 0 0 0 2px var(--color-neutral-layer-2, #FFFFFF), 0 0 0 4px var(--color-accent, #0F6CBD);
+}
+
+/* Поле ввода в стиле Fluent. */
+.fluent-input {
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid var(--color-stroke, #E0E0E0);
+    background: var(--color-neutral-layer-1, #FAFAFA);
+    color: var(--color-foreground-1, #1A1A1A);
+    padding: 0.35rem 0.5rem;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease;
+}
+
+.fluent-input:hover {
+    border-color: var(--color-stroke-divider, #D6D6D6);
+}
+
+.fluent-input:focus {
+    outline: none;
+    border-color: var(--color-accent, #0F6CBD);
+    box-shadow: 0 0 0 3px rgb(15 108 189 / 0.15);
+}
+
+/* Икон-кнопка (карандаш/корзина) в стиле Fluent. */
+.fluent-icon-btn {
+    border-radius: 4px;
+    border: 1px solid var(--color-stroke, #E0E0E0);
+    background: var(--color-neutral-layer-2, #FFFFFF);
+    color: var(--color-foreground-2, #424242);
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.fluent-icon-btn:hover {
+    background: var(--color-fill-hover, #E5E5E5);
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+.fluent-icon-btn-danger:hover {
+    background: #FDE7E9;
+    color: #B02A37;
+    border-color: #B02A37;
+}
+
+/* Основная акцентная кнопка (добавление). */
+.fluent-btn-accent {
+    border-radius: 4px;
+    background: var(--color-accent, #0F6CBD);
+    color: #FFFFFF;
+    border: none;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.fluent-btn-accent:hover {
+    background: var(--color-accent-hover, #0A4E8A);
+}
+
+.fluent-btn-accent:active {
+    background: var(--color-accent-active, #0B4A83);
+}
+
+.fluent-btn-accent:disabled {
+    background: var(--color-fill-subtle, #F0F0F0);
+    color: var(--color-foreground-3, #797979);
+    cursor: default;
+}
+
+/* Отклик на успешное сохранение: светлая полоса проходит по кнопке слева направо.
+   Белая полупрозрачная подложка читается на любом акцентном цвете и в обеих темах. */
+.fluent-btn-accent.save-sweep {
+    position: relative;
+    overflow: hidden;
+}
+
+.fluent-btn-accent.save-sweep::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.40) 40%,
+        rgba(255, 255, 255, 0.65) 50%,
+        rgba(255, 255, 255, 0.40) 60%,
+        rgba(255, 255, 255, 0) 100%);
+    animation: fluent-btn-sweep 1s ease-in-out;
+}
+
+@keyframes fluent-btn-sweep {
+    from {
+        transform: translateX(-100%);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* Вторичная кнопка (нейтральная, с рамкой) — «Печать». */
+.fluent-btn-standard {
+    border-radius: 4px;
+    background: var(--color-neutral-layer-2, #FFFFFF);
+    color: var(--color-foreground-1, #1A1A1A);
+    border: 1px solid var(--color-stroke-divider, #D6D6D6);
+    padding: 0.35rem 0.75rem;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.fluent-btn-standard:hover {
+    background: var(--color-fill-hover, #E5E5E5);
+}
+
+.fluent-btn-standard:active {
+    background: var(--color-fill-subtle, #F0F0F0);
+    border-color: var(--color-foreground-3, #797979);
+}
+
+.fluent-btn-standard:disabled {
+    color: var(--color-foreground-3, #797979);
+    background: var(--color-fill-subtle, #F0F0F0);
+    cursor: default;
+}
+
+/* ================= Сводка отделения: карточка-форма =================
+   Строгая Fluent-разметка: одна карточка по центру, таблица с разделителями,
+   без рамок ячеек. Все цвета берутся из токенов темы, поэтому тёмная тема
+   включается автоматически. */
+
+/* Центрирование формы и ограничение ширины колонки цифр. */
+.report-layout {
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+}
+
+.report-card {
+    background: var(--color-neutral-layer-2, #FFFFFF);
+    border: 1px solid var(--color-stroke, #E0E0E0);
+    border-radius: var(--radius-card, 8px);
+    box-shadow: 0 0 2px rgb(0 0 0 / .12), 0 2px 4px rgb(0 0 0 / .14);
+    overflow: hidden;
+}
+
+/* Шапка карточки: название отделения. */
+.report-head {
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--color-stroke, #E0E0E0);
+}
+
+.report-eyebrow {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-foreground-3, #797979);
+    margin: 0 0 0.25rem;
+}
+
+.report-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.25;
+    color: var(--color-foreground-1, #1A1A1A);
+    margin: 0;
+}
+
+/* Служебные поля (период, город) — только для чтения. */
+.report-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    padding: 0.875rem 1.5rem;
+    background: var(--color-neutral-layer-3, #F7F7F7);
+    border-bottom: 1px solid var(--color-stroke, #E0E0E0);
+}
+
+.report-meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 11rem;
+}
+
+.report-meta-label {
+    font-size: 0.6875rem;
+    color: var(--color-foreground-3, #797979);
+}
+
+.report-meta-value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+.report-field {
+    width: 12rem;
+    font-weight: 600;
+}
+
+/* Таблица формы. */
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.report-table thead th {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-foreground-3, #797979);
+    text-align: right;
+    padding: 0.625rem 1rem;
+    background: var(--color-neutral-layer-2, #FFFFFF);
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+    white-space: nowrap;
+}
+
+.report-table thead th:first-child {
+    text-align: left;
+}
+
+/* Заголовок группы строк («Движение», «Нозологии», «Уход»). */
+.report-section th {
+    background: var(--color-fill-subtle, #F0F0F0);
+    color: var(--color-foreground-2, #424242);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 0.375rem 1rem;
+    border-top: 1px solid var(--color-stroke-divider, #D6D6D6);
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+.report-row td {
+    padding: 0.3125rem 1rem;
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+    vertical-align: middle;
+}
+
+.report-row:last-child td {
+    border-bottom: none;
+}
+
+.report-row:hover td {
+    background: var(--color-neutral-layer-1, #FAFAFA);
+}
+
+.report-cell-label {
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+/* Колонки чисел: фиксированная ширина, чтобы цифры стояли в одну колонку. */
+.report-cell-num {
+    width: 7rem;
+}
+
+.report-input {
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-foreground-1, #1A1A1A);
+    padding: 0.25rem 0.375rem;
+    /* Цифры на 2px крупнее остального текста (0.875rem -> 1rem). */
+    font-size: 1rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+/* Стрелки вверх-вниз у полей ввода остаются: в вебе их используют при заполнении.
+   На печати они не выводятся — правило в @media print. */
+
+.report-input:hover:not(:disabled) {
+    border-color: var(--color-stroke-divider, #D6D6D6);
+    background: var(--color-neutral-layer-1, #FAFAFA);
+}
+
+.report-input:focus {
+    outline: none;
+    background: var(--color-neutral-layer-1, #FAFAFA);
+    border-color: var(--color-accent, #0F6CBD);
+    box-shadow: 0 0 0 1px var(--color-accent, #0F6CBD);
+}
+
+/* Поле, недоступное для заполнения (например, «Прикреплено в ОРИТ» в самом ОРИТ). */
+.report-input:disabled {
+    background: var(--color-fill-subtle, #F0F0F0);
+    color: var(--color-foreground-3, #797979);
+    border-color: transparent;
+    cursor: not-allowed;
+}
+
+/* Пояснение в строке. */
+.report-hint {
+    font-size: 0.75rem;
+    color: var(--color-foreground-3, #797979);
+}
+
+/* Статус сохранения. */
+.report-status {
+    margin: 0 1.5rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    border: 1px solid transparent;
+}
+
+.report-status-ok {
+    background: #DFF6DD;
+    color: #0E700E;
+    border-color: #9FD89F;
+}
+
+.report-status-error {
+    background: #FDE7E9;
+    color: #B02A37;
+    border-color: #EEACB2;
+}
+
+/* Подвал с кнопками. */
+.report-foot {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-stroke, #E0E0E0);
+    background: var(--color-neutral-layer-2, #FFFFFF);
+}
+
+.report-foot .fluent-btn-accent,
+.report-foot .fluent-btn-standard {
+    padding: 0.4375rem 1.25rem;
+    font-size: 0.9375rem;
+}
+
+/* Предупреждение при работе со сводкой за прошлые сутки. */
+.report-banner {
+    margin: 0 1.5rem 1rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    background: #FFF4CE;
+    color: #4A3A00;
+    border: 1px solid #F2D98C;
+}
+
+/* Форма разблокировки сводки за прошлые сутки. */
+.report-unlock {
+    padding: 1rem 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+}
+
+.report-unlock-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: flex-end;
+}
+
+.report-unlock-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.report-unlock-field .fluent-input {
+    width: 12rem;
+}
+
+.report-unlock-error {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #B02A37;
+}
+
+/* Блок, который существует только на бумаге. На экране его нет - иначе
+   имя отделения печаталось бы вторым разом, рядом с шапкой. */
+.report-print-only {
+    display: none;
+}
+
+/* Итоговая сводка: колонок много, на портретной A4 они не помещаются.
+   Именованная страница включает альбомную ориентацию только для сводки;
+   отчёт отделения остаётся портретным. */
+@page summary {
+    size: A4 landscape;
+    margin: 6mm 8mm;
+}
+
+.sum-layout {
+    /* Колонок много, поэтому на экране сводка занимает почти всю ширину
+       окна и центрируется. max-width здесь обязателен: он снимает
+       ограничение 44rem, заданное общему .report-layout.
+       На печати ширину задаёт @page summary. */
+    width: 90%;
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.sum-card {
+    page: summary;
+}
+
+.sum-scroll {
+    overflow-x: auto;
+}
+
+.sum-table {
+    width: 100%;
+    /* Фиксированная раскладка обязательна: при table-layout: auto браузер
+       распределяет ширины по содержимому, и отделения получаются разной ширины.
+       Ширины заданы в процентах, чтобы таблица укладывалась и в окно, и в лист. */
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    /* Рамка вокруг всей таблицы. Внутренние границы блоков (2px) тяжелее рамки:
+       рамка отвечает за контур, а не за деление на отделения. */
+    border: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+/* Доля колонки показателя. Доля отделения не задана - при table-layout: fixed
+   такие колонки поровну делят остаток. */
+.sum-col-label {
+    width: 14%;
+}
+
+.sum-col-total {
+    width: 4%;
+}
+
+/* Колонки «Всего» несут суммы, цифры в них длиннее, поэтому они на 20% шире
+   соседних «Взр»/«Дет». */
+.sum-col-total-all {
+    width: 4.8%;
+}
+
+.sum-table thead th {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-foreground-3, #797979);
+    text-align: right;
+    padding: 0.375rem 0.5rem;
+    background: var(--color-neutral-layer-2, #FFFFFF);
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+    vertical-align: bottom;
+}
+
+.sum-label {
+    text-align: left;
+    color: var(--color-foreground-1, #1A1A1A);
+    font-weight: 500;
+}
+
+/* Угловая ячейка шапки: вместо слова «Показатель» здесь дата отчётных суток,
+   поэтому она читается как значение, а не как подпись колонки: обычный регистр,
+   цвет текста, приглушённый размер и вертикальное центрирование. */
+.sum-table thead th.sum-label-date {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: normal;
+    text-transform: none;
+    color: var(--color-foreground-1, #1A1A1A);
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.sum-dep,
+.sum-group {
+    text-align: center;
+    font-size: 0.6875rem;
+}
+
+/* Вертикальные границы между блоками отделений. Рисуем на <col>, а не на ячейках:
+   в сводке есть строки с colspan="2" (взр.+дет. в одной ячейке) и шапка отделения
+   тоже объединена, поэтому граница на ячейке в них прерывалась бы. Граница колонки
+   идёт по всей высоте таблицы. У первого отделения граница тоже есть - она
+   отделяет угловую ячейку с датой отчёта. */
+.sum-col-dep-start {
+    border-left: 2px solid var(--color-foreground-3, #797979);
+}
+
+/* Внутри отделения, между «Взр» и «Дет», разделитель тоньше и светлее границы
+   между отделениями: отделения должны читаться как блоки, а пары внутри - как
+   составные части одного блока. */
+.sum-col-dep-child {
+    border-left: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+/* Граница между блоком отделений и блоком итогов: та же толщина, что между
+   отделениями, - это тоже граница блоков. */
+.sum-col-total-start {
+    border-left: 2px solid var(--color-foreground-3, #797979);
+}
+
+/* Внутри блока итогов разделители серые и тонкие, как внутри отделения:
+   отделения и итоги читаются как блоки, их составные части - как пары. */
+.sum-col-total-child {
+    border-left: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+/* Группа итогов «С дневным стационаром» отделяется линией, чтобы её
+   невозможно было спутать с обычным стационаром. */
+.sum-group-full {
+    border-left: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+/* Разделители внутри блока «С дневным стационаром» рисует САМА ЯЧЕЙКА, а не колонка.
+   Колонка прочертила бы их по всей высоте таблицы, а блок выводится только в разделе
+   «Движение»: в строках кислорода, нозологий и соц. статуса справа остаётся белое поле,
+   и вертикальные линии в нём читались бы как пустая сетка. */
+.sum-total-full {
+    border-left: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+/* Объединённая ячейка отделения: взр.+дет. в одной ячейке, число по центру. */
+.sum-merged {
+    text-align: center;
+}
+
+/* Пустая ячейка-распорка перед блоками КДО и платных услуг. */
+.sum-extra {
+    background: transparent;
+    border-bottom: none;
+}
+
+.sum-num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.sum-total {
+    background: var(--color-fill-subtle, #F0F0F0);
+    font-weight: 600;
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+.sum-total-all {
+    background: var(--color-neutral-layer-3, #F7F7F7);
+    border-left: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+.sum-total-full {
+    color: var(--color-foreground-2, #424242);
+}
+
+.sum-section th {
+    background: var(--color-fill-subtle, #F0F0F0);
+    color: var(--color-foreground-2, #424242);
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 0.3125rem 0.5rem;
+    border-top: 1px solid var(--color-stroke-divider, #D6D6D6);
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+/* Хвост заголовка раздела над пустым блоком «С учетом дневного стационара»:
+   без заливки, рамок и отступа — продолжает белое поле таблицы. */
+.sum-section th.sum-section-blank {
+    background: transparent;
+    border: none;
+    padding: 0;
+}
+
+.sum-row td {
+    padding: 0.1875rem 0.5rem;
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+    vertical-align: middle;
+}
+
+.sum-row:hover td {
+    background: var(--color-neutral-layer-1, #FAFAFA);
+}
+
+.sum-row-subtotal td {
+    font-weight: 600;
+    background: var(--color-neutral-layer-1, #FAFAFA);
+}
+
+.sum-row-subtotal .sum-label {
+    font-weight: 600;
+}
+
+.sum-print-title .report-meta-value {
+        font-size: 1rem;
+    }
+
+    /* Подпись сводки и строка о подавших сводку отделения на бумаге: чёрные,
+       без полей по бокам, подпись крупнее служебных подписей. */
+    .sum-print-title {
+        padding: 0 0 1mm;
+    }
+
+    .sum-print-title .report-meta-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .sum-filled {
+        padding: 0 0 1mm;
+        font-size: 0.75rem;
+        color: #000000;
+    }
+
+    .sum-filled strong {
+        color: #000000;
+    }
+
+/* Строка фактического коечного фонда под шапкой: подпись слева, значения под
+   колонками «Взр» и «Дет». Отдельное правило обязательно — в шапке все th
+   переводятся в верхний регистр и выравниваются вправо. */
+.sum-table thead tr.sum-spots th {
+    text-transform: none;
+    letter-spacing: normal;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-foreground-1, #1A1A1A);
+    vertical-align: middle;
+}
+
+.sum-table thead tr.sum-spots th.sum-label {
+    text-align: left;
+}
+
+/* Подпись сводки для печати и строка о подавших сводку отделения. */
+.sum-print-title {
+    padding: 0 1.5rem;
+}
+
+.sum-filled {
+    margin: 0;
+    padding: 0.25rem 1.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--color-foreground-2, #3A3A3A);
+}
+
+.sum-filled strong {
+    font-weight: 600;
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+/* Дежурная смена под таблицей сводки: три блока, в каждом ФИО и «Отделение».
+   Печатается вместе со сводкой, поэтому ширина ограничена, а не растянута на лист. */
+.duty-shift {
+    padding: 0.5rem 1.5rem 1rem;
+    border-top: 1px solid var(--color-stroke, #E0E0E0);
+}
+
+.duty-title {
+    margin: 0.5rem 0 0.25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+.duty-hint {
+    margin: 0 0 0.5rem;
+}
+
+.duty-error {
+    margin: 0 0 0.5rem;
+    font-size: 0.875rem;
+}
+
+.duty-block {
+    margin-bottom: 0.75rem;
+}
+
+.duty-block-title {
+    margin: 0 0 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-foreground-2, #3A3A3A);
+}
+
+.duty-table {
+    width: 100%;
+    max-width: 34rem;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.duty-table th {
+    padding: 0.125rem 0.5rem 0.25rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--color-foreground-2, #3A3A3A);
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+.duty-table td {
+    padding: 0.1875rem 0.5rem;
+    vertical-align: middle;
+}
+
+.duty-table .fluent-input {
+    width: 100%;
+}
+
+.duty-col-act,
+.duty-actions {
+    width: 5rem;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.duty-add-row td {
+    padding-top: 0.375rem;
+}
+
+.duty-add-row .fluent-btn-accent {
+    padding: 0.3125rem 0.75rem;
+}
+
+/* Текстовая копия ячейки дежурного — только для печати. На экране её заменяет
+   элемент формы, на бумаге наоборот: список и поле ввода печатать не нужно. */
+.duty-print-text {
+    display: none;
+}
+
+/* Переводы и отказы: таблица шире дежурной, поэтому ширины задаём явно —
+   иначе восемь колонок делят ширину по содержимому и «Диагноз» схлопывается.
+   max-width снят: у дежурной таблицы он ограничивает ширину 34rem, а на отказах
+   в этих 544 px восемь колонок не помещались даже с переносом заголовков. */
+.out-table {
+    table-layout: fixed;
+    width: 100%;
+    max-width: none;
+}
+
+.out-col-name {
+    width: 16%;
+}
+
+.out-col-sex {
+    width: 5%;
+}
+
+.out-col-age {
+    width: 9%;
+}
+
+.out-col-diag {
+    width: 7.5%;
+}
+
+.out-col-ship {
+    width: 9.75%;
+}
+
+.out-col-sent {
+    width: 18.875%;
+}
+
+.out-col-route {
+    width: 15%;
+}
+
+.out-col-act {
+    width: 5rem;
+}
+
+.out-table td {
+    padding: 0.125rem 0.375rem;
+}
+
+/* Заголовки переносятся, а не вылезают за ячейку: на экране секция уже 704 мм-ного
+   контейнера, и «Направлен» в колонке 13% не помещался ни одной строкой. */
+.out-table th {
+    white-space: normal;
+}
+
+/* Два поля возраста в одной графе: «3» лет и «6» мес. Ширина задаётся в долях, без
+   min-width — при фиксированной раскладке колонки сжимаются под контейнер, и пиксельный
+   минимум выталкивал бы второе поле за границу ячейки. */
+.out-age {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.out-age-years,
+.out-age-month {
+    flex: 1 1 0;
+    min-width: 0;
+    width: auto;
+}
+
+/* Селект списка и поле ручного ввода под ним («свой вариант»): одно поле на ячейку,
+   второе появляется только когда выбран ручной ввод. */
+.out-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+}
+
+.out-field-manual {
+    width: 100%;
+}
+
+.out-add-row td {
+    padding-top: 0.375rem;
+}
+
+.out-add-row .fluent-btn-accent {
+    padding: 0.3125rem 0.75rem;
+}
+
+.out-print-text {
+    display: none;
+}
+
+/* Печать: убираем навигацию, подсказки и кнопки, растягиваем таблицу. */
+@media print {
+    /* Поля страницы. Аппаратные непечатаемые поля принтера (около 5-6 мм) CSS не обойти. */
+    @page {
+        margin: 6mm 10mm;
+    }
+
+    .report-no-print {
+        display: none !important;
+    }
+
+    /* Каркас приложения: шапка с навигацией и отступы вокруг содержимого
+       на бумаге не нужны и сами по себе занимали отдельную страницу. */
+    header {
+        display: none !important;
+    }
+
+    .app-main {
+        padding: 0;
+    }
+
+    .report-print-only {
+        display: flex;
+    }
+
+    body {
+        background: #FFFFFF;
+        color: #000000;
+    }
+
+    .report-layout {
+        max-width: none;
+        padding: 0;
+    }
+
+    .report-card {
+        border: none;
+        box-shadow: none;
+        /* На экране карточка обрезает содержимое; на печати сводка длиннее одной страницы. */
+        overflow: visible;
+    }
+
+    /* Печать строго чёрно-белая: никаких заливок, включая подсветку наведения. */
+    .report-meta,
+    .report-table thead th,
+    .report-section th,
+    .report-row td,
+    .report-row:hover td,
+    .report-input,
+    .report-input:disabled {
+        background: transparent;
+        color: #000000;
+    }
+
+    /* Стрелки вверх-вниз у полей ввода нужны при заполнении, но на бумаге
+       занимают место в ячейке и печатаются серыми. Прячем только при печати. */
+    .report-input[type="number"],
+    .fluent-input[type="number"] {
+        -moz-appearance: textfield;
+        appearance: textfield;
+    }
+
+    .report-input[type="number"]::-webkit-outer-spin-button,
+    .report-input[type="number"]::-webkit-inner-spin-button,
+    .fluent-input[type="number"]::-webkit-outer-spin-button,
+    .fluent-input[type="number"]::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* Шапка на бумаге не нужна: отделение, сутки и м/с печатаются строкой ниже. */
+    .report-head,
+    .report-foot {
+        display: none !important;
+    }
+
+    /* Служебная строка: отделение, отчётные сутки, дежурная м/с. */
+    .report-meta {
+        padding: 0 0 2mm 0;
+        gap: 1mm 8mm;
+        border-bottom: 1px solid #000000;
+    }
+
+    .report-meta-item {
+        min-width: 0;
+        gap: 0;
+    }
+
+    .report-meta-label {
+        font-size: 0.625rem;
+    }
+
+    .report-meta-value,
+    .report-field {
+        font-size: 0.8125rem;
+    }
+
+    /* Таблица: полноценная сетка вместо одиночных нижних границ строк. */
+    .report-table {
+        font-size: 0.75rem;
+        border: 1px solid #000000;
+    }
+
+    /* Повтор шапки таблицы на каждой странице. */
+    .report-table thead {
+        display: table-header-group;
+    }
+
+    .report-table thead th {
+        padding: 1mm 2mm;
+        border: 1px solid #000000;
+    }
+
+    .report-section th {
+        padding: 0.5mm 2mm;
+        border: 1px solid #000000;
+    }
+
+    .report-row td {
+        padding: 0.5mm 2mm;
+        border: 1px solid #000000;
+    }
+
+    /* Правило .report-row:last-child выше по специфичности и снимает нижнюю
+       границу последней строки - без возврата рамка стола будет снизу разорвана. */
+    .report-row:last-child td {
+        border-bottom: 1px solid #000000;
+    }
+
+    /* Строка не должна разрезаться между страницами. */
+    .report-row,
+    .report-section {
+        break-inside: avoid;
+    }
+
+    .report-cell-num {
+        width: 18mm;
+    }
+
+    .report-input {
+        border: none;
+        padding: 0;
+        /* 1rem нужен для читаемости на экране, на бумаге съедает высоту строк. */
+        font-size: 0.8125rem;
+        line-height: 1.1;
+        text-align: right;
+    }
+
+    /* --- итоговая сводка ---
+
+       Колонок много, поэтому альбомная ориентация задана именованной страницей
+       summary выше. Здесь только чёрно-белая сетка и плотные строки. */
+    .sum-layout {
+        max-width: none;
+        /* На экране сводка занимает 90% окна; на печати она берёт всю
+           доступную ширину листа. */
+        width: auto;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .sum-card {
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .sum-scroll {
+        overflow: visible;
+    }
+
+    /* Ширины колонок заданы выше, в общих правилах: одни и те же для экрана и
+       для печати, иначе отделения на бумаге снова станут разной ширины. */
+    .sum-table {
+        font-size: 0.625rem;
+        border: 1px solid #000000;
+        width: 100%;
+    }
+
+    .sum-table thead {
+        display: table-header-group;
+    }
+
+    .sum-table thead th,
+    .sum-section th,
+    .sum-row td,
+    .sum-row:hover td,
+    .sum-row-subtotal td,
+    .sum-total,
+    .sum-total-all {
+        background: transparent;
+        color: #000000;
+        /* Длинные русские слова не переносятся по пробелу, поэтому при
+           table-layout: fixed они вылезали за границу ячейки. */
+        overflow-wrap: anywhere;
+    }
+
+    .sum-table thead th {
+        padding: 0.8mm 1mm;
+        border: 1px solid #000000;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+
+    .sum-section th {
+        padding: 0.4mm 1mm;
+        border: 1px solid #000000;
+    }
+
+    .sum-section th.sum-section-blank {
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    .sum-row td {
+        padding: 0.35mm 1mm;
+        border: 1px solid #000000;
+    }
+
+    .sum-label {
+        white-space: normal;
+    }
+
+    .sum-num {
+        min-width: 0;
+    }
+
+    .sum-total-all,
+    .sum-group-full {
+        border-left-width: 1.5px;
+        border-left-color: #000000;
+    }
+
+    /* В печати сетка чёрная. Граница колонки перекрывает границы ячеек
+       (в модели border-collapse выигрывает рамка колонки), поэтому её цвет
+       задаём здесь явно, иначе на бумаге осталась бы серая линия.
+       Толщина именно 2px, а не 1.5px: полуторапиксельная рамка при печати
+       схлопывается в один device pixel и отделения перестают отделяться
+       от внутренних разделителей. */
+    .sum-col-dep-start {
+        border-left: 2px solid #000000;
+    }
+
+    /* Внутри отделения линия остаётся 1px: толщину и цвет неё задаёт сама
+       печатная сетка, отдельное правило лишь не даёт колонке перекрыть её
+       серым цветом с экрана. */
+    .sum-col-dep-child,
+    .sum-col-total-child {
+        border-left: 1px solid #000000;
+    }
+
+    /* Граница блоков отделение | итоги — та же толщина, что между отделениями. */
+    .sum-col-total-start {
+        border-left: 2px solid #000000;
+    }
+
+    .sum-extra {
+        background: transparent;
+    }
+
+    .sum-row,
+    .sum-section {
+        break-inside: avoid;
+    }
+
+    /* Дежурная смена печатается вместе со сводкой: элементы формы заменяем текстом,
+       подсказки про правку убираем, блок не должен разрываться пополам. */
+    .duty-edit,
+    .duty-hint {
+        display: none !important;
+    }
+
+    .duty-print-text {
+        display: inline;
+    }
+
+    .duty-shift {
+        padding: 2mm 1.5rem 0;
+        border-top: 1px solid #000000;
+    }
+
+    .duty-title {
+        margin: 2mm 0 1mm;
+        font-size: 0.875rem;
+        color: #000000;
+    }
+
+    .duty-block {
+        margin-bottom: 2mm;
+        break-inside: avoid;
+    }
+
+    .duty-block-title {
+        margin: 0 0 0.5mm;
+        font-size: 0.75rem;
+        color: #000000;
+    }
+
+    .duty-table {
+        max-width: 34rem;
+        font-size: 0.75rem;
+    }
+
+    .duty-table th {
+        padding: 0.3mm 1mm;
+        border: 1px solid #000000;
+        color: #000000;
+    }
+
+    .duty-table td {
+        padding: 0.3mm 1mm;
+        border: 1px solid #000000;
+    }
+
+    .duty-block > .report-hint {
+        font-size: 0.75rem;
+        color: #000000;
+    }
+
+    /* Отказы печатаются вместе со сводкой: поля формы заменяем текстом,
+       форму добавления убирает .report-no-print. Таблица отказов шире дежурной и
+       занимает лист целиком — с отступами секции она выходила на 268 мм, а «Диагноз»
+       на 34rem вообще схлопывался бы в две буквы. */
+    .out-shift {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .out-edit {
+        display: none !important;
+    }
+
+    .out-print-text {
+        display: inline;
+    }
+
+    .out-table {
+        max-width: none;
+        width: 100%;
+    }
+
+    .out-table td {
+        padding: 0.3mm 1mm;
+    }
+
+    .out-table tr {
+        break-inside: avoid;
+    }
+}

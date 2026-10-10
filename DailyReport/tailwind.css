@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Светлая тема — палитра Fluent 2 / Windows (значения по умолчанию). */
+@theme {
+    --color-neutral-layer-1: #FAFAFA; /* фон страницы */
+    --color-neutral-layer-2: #FFFFFF; /* шапка / панели */
+    --color-neutral-layer-3: #F7F7F7; /* вложенные панели */
+
+    --color-foreground-1: #1A1A1A;    /* основной текст */
+    --color-foreground-2: #424242;    /* вторичный текст */
+    --color-foreground-3: #797979;    /* приглушённый текст */
+
+    --color-accent: #0F6CBD;          /* акцент Windows 11 */
+    --color-accent-hover: #0A4E8A;
+    --color-accent-active: #0B4A83;
+
+    --color-fill-hover: #E5E5E5;      /* заливка при наведении */
+    --color-fill-subtle: #F0F0F0;     /* заливка активного/вложенного */
+
+    --color-stroke: #E0E0E0;          /* границы контролов */
+    --color-stroke-divider: #D6D6D6;  /* разделители */
+
+    --radius-control: 4px;
+    --radius-card: 8px;
+
+    --shadow-card: 0 0 2px rgb(0 0 0 / .12), 0 2px 4px rgb(0 0 0 / .14);
+    --shadow-overlay: 0 0 2px rgb(0 0 0 / .18), 0 8px 16px rgb(0 0 0 / .20);
+
+    --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, "Roboto", "Ubuntu", "Cantarell", "Noto Sans", sans-serif;
+}
+
+/* Тёмная тема — палитра Fluent 2 dark, включается классом .dark на <html>. */
+.dark {
+    --color-neutral-layer-1: #1B1A19;
+    --color-neutral-layer-2: #292827;
+    --color-neutral-layer-3: #323130;
+
+    --color-foreground-1: #F5F5F5;
+    --color-foreground-2: #C7C6C5;
+    --color-foreground-3: #979593;
+
+    --color-accent: #479EF5;
+    --color-accent-hover: #5CA8F7;
+    --color-accent-active: #6FBBFA;
+
+    --color-fill-hover: #3D3B39;
+    --color-fill-subtle: #323130;
+
+    --color-stroke: #484644;
+    --color-stroke-divider: #5C5A58;
+}

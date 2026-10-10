@@ -1,0 +1,678 @@
+@page "/finalreport"
+@using DailyReport.Models
+@using DailyReport.Models.PersonelFolder
+@using DailyReport.Models.Reports
+@using DailyReport.Services.Reports
+
+<PageTitle>Сводка по больнице</PageTitle>
+
+<div class="report-layout sum-layout">
+    <p class="mb-2 text-sm report-no-print">
+        <a href="/" class="fluent-link">&larr; К списку отделений</a>
+    </p>
+
+    <div class="report-card sum-card">
+        <div class="report-head report-no-print">
+            <p class="report-eyebrow">Итоговая сводка</p>
+            <h1 class="report-title">Сводка по больнице</h1>
+        </div>
+
+        @if (Data is null)
+        {
+            <div class="report-foot"><span class="report-hint">Загрузка...</span></div>
+        }
+        else if (Data.Columns.Count == 0)
+        {
+            <div class="report-foot">
+                <span class="report-hint">Нет отделений, участвующих в итоговой сводке.</span>
+            </div>
+        }
+        else
+        {
+            @* Печатная подпись сводки и строка «сколько отделений подало сводку» стоят
+               перед блоком служебных полей. На экране подпись скрыта, на бумаге скрыта
+               шапка (.report-head), поэтому в обоих случаях строка идёт сразу под
+               названием сводки. *@
+            <div class="report-print-only sum-print-title">
+                <span class="report-meta-label">Итоговая сводка по больнице</span>
+            </div>
+
+            <p class="sum-filled">
+                Заполнено отделений: <strong>@Data.FilledDepartments</strong> из @Data.Columns.Count
+            </p>
+
+            <div class="report-meta">
+                <div class="report-meta-item">
+                    <span class="report-meta-label">Коечный фонд</span>
+                    <span class="report-meta-value">@(Data.AdultSpots + Data.ChildrenSpots) коек</span>
+                </div>
+                @if (Data.OritSpots > 0)
+                {
+                    <div class="report-meta-item">
+                        <span class="report-meta-label">Из них ОРИТ</span>
+                        <span class="report-meta-value">@Data.OritSpots коек</span>
+                    </div>
+                }
+            </div>
+
+            <div class="sum-scroll">
+                <table class="sum-table">
+                    <colgroup>
+                        <col class="sum-col-label" />
+                        @for (var d = 0; d < Data.Columns.Count; d++)
+                        {
+                            @* Граница слева есть и у первого отделения - она отделяет
+                               колонку с датой отчёта. У остальных - от соседнего отделения. *@
+                            <col class="sum-col-dep sum-col-dep-start" />
+                            <col class="sum-col-dep sum-col-dep-child" />
+                        }
+                        @* Первый блок итогов: первая колонка отделяет блок отделений
+                           от блока итогов, остальные колонки внутри блока разделяются
+                           серыми линиями. Границы ведутся на <col> - в сводке есть строки
+                           с colspan, и на ячейке линия прерывалась бы.
+                           У второго блока итогов («С дневным стационаром») границ на
+                           <col> НЕТ: он выводится только в разделе «Движение», и линии
+                           колонок прочертили бы пустую сетку в строках кислорода,
+                           нозологий и соц. статуса. Его внутренние разделители рисуют
+                           сами ячейки (.sum-total-full).
+                           Граница на ПЕРВОЙ колонке второго блока есть - это закрывающая
+                           линия блока «Всего по стационару»: в строках движения это разделитель
+                           между блоками итогов, а в остальных строках - правый край блока. *@
+                        <col class="sum-col-total sum-col-total-start" />
+                        <col class="sum-col-total sum-col-total-child" />
+                        <col class="sum-col-total sum-col-total-child sum-col-total-all" />
+                        <col class="sum-col-total sum-col-total-child" />
+                        <col class="sum-col-total" />
+                        <col class="sum-col-total sum-col-total-all" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th class="sum-label sum-label-date" rowspan="2">@ReportDate.ToString("dd.MM.yyyy")</th>
+                            @foreach (var column in Data.Columns)
+                            {
+                                <th class="sum-dep" colspan="2">@column.Department.Name</th>
+                            }
+                            <th class="sum-group" colspan="3">Всего по стационару</th>
+                            <th class="sum-group sum-group-full" colspan="3">С учетом дневного стационара</th>
+                        </tr>
+                        <tr>
+                            @foreach (var column in Data.Columns)
+                            {
+                                <th class="sum-num">Взр</th>
+                                <th class="sum-num">Дет</th>
+                            }
+                            <th class="sum-num sum-total">Взр</th>
+                            <th class="sum-num sum-total">Дет</th>
+                            <th class="sum-num sum-total sum-total-all">Всего</th>
+                            <th class="sum-num sum-total sum-total-full">Взр</th>
+                            <th class="sum-num sum-total sum-total-full">Дет</th>
+                            <th class="sum-num sum-total sum-total-full">Всего</th>
+                        </tr>
+                        <tr class="sum-spots">
+                            @* Фактический коечный фонд: подпись в первой колонке, значения под
+                               «Взр» и «Дет» каждого отделения. Угловая ячейка с датой остаётся
+                               на rowspan="2" — иначе строка сдвинулась бы на колонку вправо. *@
+                            <th class="sum-label">Фактическое количество коек</th>
+                            @foreach (var column in Data.Columns)
+                            {
+                                <th class="sum-num">@column.AdultSpots</th>
+                                <th class="sum-num">@column.ChildrenSpots</th>
+                            }
+                            <th class="sum-num sum-total">@Data.BedsAdults</th>
+                            <th class="sum-num sum-total">@Data.BedsChildren</th>
+                            <th class="sum-num sum-total sum-total-all">@(Data.BedsAdults + Data.BedsChildren)</th>
+                            <th class="sum-num sum-total sum-total-full">@(Data.BedsAdults + Data.DayCareBedsAdults)</th>
+                            <th class="sum-num sum-total sum-total-full">@(Data.BedsChildren + Data.DayCareBedsChildren)</th>
+                            <th class="sum-num sum-total sum-total-full">@(Data.BedsAdults + Data.BedsChildren + Data.DayCareBedsAdults + Data.DayCareBedsChildren)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var section in Sections)
+                        {
+                            @if (section == SummarySection.Movement)
+                            {
+                                /* Заголовок «Движение» — на всю ширину: под ним блок
+                                   «С учетом дневного стационара» есть, хвост серый по делу. */
+                                <tr class="sum-section"><th colspan="@TotalColumns">@SummaryRowCatalog.SectionTitle(section)</th></tr>
+                            }
+                            else
+                            {
+                                /* Заголовки остальных разделов обрываются на правом краю первого
+                                   блока итогов: последние 3 колонки под «С учетом дневного
+                                   стационара» пустые, серой заливки в них быть не должно. */
+                                <tr class="sum-section">
+                                    <th colspan="@(TotalColumns - 3)">@SummaryRowCatalog.SectionTitle(section)</th>
+                                    <th class="sum-section-blank" colspan="3"></th>
+                                </tr>
+                            }
+
+                            @foreach (var row in Data.Rows.Where(r => r.Row.Section == section))
+                            {
+                                if (row.Row.IsMerged)
+                                {
+                                    <tr class="sum-row @(row.Row.IsSubtotal ? "sum-row-subtotal" : "")">
+                                        <td class="sum-label">@row.Row.Label</td>
+                                        @for (var i = 0; i < Data.Columns.Count; i++)
+                                        {
+                                            <td class="sum-num sum-merged" colspan="2">@Cell(row.Merged[i])</td>
+                                        }
+                                        <td class="sum-num sum-total" colspan="3">@row.MergedTotal</td>
+                                        @if (row.Row.CountsInDayCareTotal)
+                                        {
+                                            <td class="sum-num sum-total sum-total-full" colspan="3">@(row.MergedTotal + row.DayCareMerged)</td>
+                                        }
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr class="sum-row @(row.Row.IsSubtotal ? "sum-row-subtotal" : "")">
+                                        <td class="sum-label">@row.Row.Label</td>
+                                        @for (var i = 0; i < Data.Columns.Count; i++)
+                                        {
+                                            <td class="sum-num">@Cell(row.Adults[i])</td>
+                                            <td class="sum-num">@Cell(row.Children[i])</td>
+                                        }
+                                        <td class="sum-num sum-total">@row.AdultsTotal</td>
+                                        <td class="sum-num sum-total">@row.ChildrenTotal</td>
+                                        <td class="sum-num sum-total sum-total-all">@(row.AdultsTotal + row.ChildrenTotal)</td>
+                                        @* Дневной стационар ведёт только движение. В остальных
+                                           разделах ячейки блока «С учетом дневного
+                                           стационара» не выводятся вовсе: пустое серое
+                                           поле со сеткой читалось бы как данные. *@
+                                        @if (row.Row.CountsInDayCareTotal)
+                                        {
+                                            <td class="sum-num sum-total sum-total-full">@(row.AdultsTotal + row.DayCareAdults)</td>
+                                            <td class="sum-num sum-total sum-total-full">@(row.ChildrenTotal + row.DayCareChildren)</td>
+                                            <td class="sum-num sum-total sum-total-full">@(row.AdultsTotal + row.ChildrenTotal + row.DayCareAdults + row.DayCareChildren)</td>
+                                        }
+                                    </tr>
+                                }
+                            }
+                        }
+
+                        <tr class="sum-section">
+                            <th colspan="@(TotalColumns - 3)">Прочие подразделения</th>
+                            <th class="sum-section-blank" colspan="3"></th>
+                        </tr>
+                        <tr class="sum-row">
+                            <td class="sum-label">Обратившиеся в КДО</td>
+                            @for (var i = 0; i < Data.Columns.Count; i++)
+                            {
+                                <td class="sum-num sum-extra" colspan="2"></td>
+                            }
+                            <td class="sum-num sum-total" colspan="3">@Data.KdoVisits</td>
+                        </tr>
+                        <tr class="sum-row">
+                            <td class="sum-label">Платные услуги</td>
+                            @for (var i = 0; i < Data.Columns.Count; i++)
+                            {
+                                <td class="sum-num sum-extra" colspan="2"></td>
+                            }
+                            <td class="sum-num sum-total" colspan="3">@Data.PayServiceVisits</td>
+                        </tr>
+
+                        @* Отказы от госпитализации — общие числа приёмного отделения, по колонкам отделений
+                           их не разнести, поэтому в отделении стоят пустые ячейки, а значения
+                           идут в первом блоке итогов. Ячейки отделения — по одной на
+                           отделение с colspan="2", а НЕ одна на весь блок: под ячейкой на всю
+                           ширину вертикальные границы не рисуются, и строка разваливается
+                           (так же сделано у «Обратившиеся в КДО» и «Платные услуги»).
+                           Блок «С учетом дневного стационара» здесь не выводится, как и у
+                           остальных строк вне движения: числа не по сводкам отделений. *@
+                        <tr class="sum-row">
+                            <td class="sum-label">Отказ от госпитализации</td>
+                            @for (var i = 0; i < Data.Columns.Count; i++)
+                            {
+                                <td class="sum-num sum-extra" colspan="2"></td>
+                            }
+                            <td class="sum-num sum-total">@RejectCounts.RejectAdults</td>
+                            <td class="sum-num sum-total">@RejectCounts.RejectChildren</td>
+                            <td class="sum-num sum-total sum-total-all">@RejectCounts.RejectTotal</td>
+                        </tr>
+                        <tr class="sum-row">
+                            <td class="sum-label">На амбулаторное лечение</td>
+                            @for (var i = 0; i < Data.Columns.Count; i++)
+                            {
+                                <td class="sum-num sum-extra" colspan="2"></td>
+                            }
+                            <td class="sum-num sum-total">@RejectCounts.AmbulatoryAdults</td>
+                            <td class="sum-num sum-total">@RejectCounts.AmbulatoryChildren</td>
+                            <td class="sum-num sum-total sum-total-all">@RejectCounts.AmbulatoryTotal</td>
+                        </tr>
+                        <tr class="sum-row">
+                            <td class="sum-label">В другую МО</td>
+                            @for (var i = 0; i < Data.Columns.Count; i++)
+                            {
+                                <td class="sum-num sum-extra" colspan="2"></td>
+                            }
+                            <td class="sum-num sum-total">@RejectCounts.OtherAdults</td>
+                            <td class="sum-num sum-total">@RejectCounts.OtherChildren</td>
+                            <td class="sum-num sum-total sum-total-all">@RejectCounts.OtherTotal</td>
+                        </tr>
+                        <tr class="sum-row sum-row-subtotal">
+                            <td class="sum-label">Всего не госпитализировано</td>
+                            @for (var i = 0; i < Data.Columns.Count; i++)
+                            {
+                                <td class="sum-num sum-extra" colspan="2"></td>
+                            }
+                            <td class="sum-num sum-total">@RejectCounts.AdultsTotal</td>
+                            <td class="sum-num sum-total">@RejectCounts.ChildrenTotal</td>
+                            <td class="sum-num sum-total sum-total-all">@RejectCounts.Total</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            @* Дежурная смена идёт сразу под таблицей, как в V1: в печати это часть сводки,
+               а формы добавления и кнопки правки на бумаге не нужны. *@
+            <section class="duty-shift">
+                <h2 class="duty-title">Дежурная смена</h2>
+
+                @if (!CanEditDuty)
+                {
+                    <p class="report-hint duty-hint">
+                        Показаны дежурные за @ReportDate.ToString("dd.MM.yyyy"). Назначать и править
+                        можно только за текущие сутки.
+                    </p>
+                }
+                else if (DutyDocs.Count == 0)
+                {
+                    <p class="report-hint duty-hint">За текущие сутки дежурные не назначены.</p>
+                }
+
+                @if (!string.IsNullOrEmpty(DutyError))
+                {
+                    <p class="report-unlock-error duty-error">@DutyError</p>
+                }
+
+                @foreach (var block in DutyBlocks)
+                {
+                    var draft = GetDraft(block.Type);
+                    var staff = GetStaff(block.Type);
+                    var rows = DutyDocs.Where(d => d.type == block.Type).ToList();
+
+                    <div class="duty-block">
+                        <h3 class="duty-block-title">@block.Title</h3>
+
+                        @if (rows.Count == 0 && !CanEditDuty)
+                        {
+                            <p class="report-hint">Не назначены.</p>
+                        }
+                        else
+                        {
+                            <table class="duty-table">
+                                <thead>
+                                    <tr>
+                                        <th class="duty-col-name">Дежурный</th>
+                                        <th class="duty-col-dep">Отделение</th>
+                                        @if (CanEditDuty)
+                                        {
+                                            <th class="duty-col-act report-no-print"></th>
+                                        }
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var doc in rows)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (CanEditDuty)
+                                                {
+                                                    <select class="fluent-input duty-edit" @bind="doc.dutyDoc">
+                                                        @if (string.IsNullOrEmpty(doc.dutyDoc))
+                                                        {
+                                                            <option value="">Выбрать дежурного</option>
+                                                        }
+                                                        else
+                                                        {
+                                                            @* ФИО может отсутствовать в справочнике (старые записи),
+                                                               тогда своё значение показываем первым, иначе select
+                                                               молча выберет другое. *@
+                                                            <option value="@doc.dutyDoc">@doc.dutyDoc</option>
+                                                        }
+                                                        @foreach (var person in staff.Where(p => p.Name != doc.dutyDoc))
+                                                        {
+                                                            <option value="@person.Name">@person.Name</option>
+                                                        }
+                                                    </select>
+                                                    @* На бумаге печатаем текст, а не элемент формы: список
+                                                       дежурных на листе выглядел бы как пустая строка. *@
+                                                    <span class="duty-print-text">@doc.dutyDoc</span>
+                                                }
+                                                else
+                                                {
+                                                    @doc.dutyDoc
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (CanEditDuty)
+                                                {
+                                                    <input type="text" class="fluent-input duty-edit" placeholder="Отделение"
+                                                           value="@doc.departments"
+                                                           @onchange="e => doc.departments = e.Value?.ToString()" />
+                                                    <span class="duty-print-text">@doc.departments</span>
+                                                }
+                                                else
+                                                {
+                                                    @doc.departments
+                                                }
+                                            </td>
+                                            @if (CanEditDuty)
+                                            {
+                                                <td class="duty-actions report-no-print">
+                                                    <button type="button" @onclick="() => UpdateDuty(doc)"
+                                                            class="fluent-icon-btn" title="Сохранить">&#9998;</button>
+                                                    <button type="button" @onclick="() => DeleteDuty(doc)"
+                                                            class="fluent-icon-btn fluent-icon-btn-danger" title="Удалить">&#128465;</button>
+                                                </td>
+                                            }
+                                        </tr>
+                                    }
+
+                                    @if (CanEditDuty)
+                                    {
+                                        <tr class="duty-add-row report-no-print">
+                                            <td>
+                                                <select class="fluent-input" @bind="draft.Name">
+                                                    <option value="">Выбрать дежурного</option>
+                                                    @foreach (var person in staff)
+                                                    {
+                                                        <option value="@person.Name">@person.Name</option>
+                                                    }
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <input type="text" class="fluent-input" placeholder="@(block.Department.Length > 0 ? block.Department : "Отделение")"
+                                                       @bind="draft.Departments" />
+                                            </td>
+                                            <td class="duty-actions">
+                                                <button type="button" @onclick="() => AddDuty(block)" class="fluent-btn-accent">+</button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                }
+            </section>
+
+            @* Отказы от госпитализации: список пациентов приёмного отделения и их маршрут.
+               Отделение здесь не участвует, поэтому числа из этого списка попадают только
+               в блок итогов сводки четырьмя строками выше. Правка — только за текущие
+               сутки, как у дежурных. *@
+            <section class="duty-shift out-shift">
+                <h2 class="duty-title">Переводы и отказы</h2>
+
+                @if (!CanEditOutPatients)
+                {
+                    <p class="report-hint duty-hint">
+                        Показаны отказы за @ReportDate.ToString("dd.MM.yyyy"). Добавлять и править
+                        можно только за текущие сутки.
+                    </p>
+                }
+                else if (OutPatients.Count == 0)
+                {
+                    <p class="report-hint duty-hint">За текущие сутки отказов от госпитализации нет.</p>
+                }
+
+                @if (!string.IsNullOrEmpty(OutError))
+                {
+                    <p class="report-unlock-error duty-error">@OutError</p>
+                }
+
+                <table class="duty-table out-table">
+                    <thead>
+                        <tr>
+                            <th class="out-col-name">ФИО</th>
+                            <th class="out-col-sex">Пол</th>
+                            <th class="out-col-age">Возраст</th>
+                            <th class="out-col-diag">Диагноз</th>
+                            <th class="out-col-ship">Кем доставлен</th>
+                            <th class="out-col-sent">Направлен из</th>
+                            <th class="out-col-sent">Переведен в</th>
+                            <th class="out-col-route">Маршрут</th>
+                            @if (CanEditOutPatients)
+                            {
+                                <th class="out-col-act report-no-print"></th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var patient in OutPatients)
+                        {
+                            var route = OutPatientService.ResolveRoute(patient);
+                            <tr>
+                                <td>
+                                    @if (CanEditOutPatients)
+                                    {
+                                        <input type="text" class="fluent-input out-edit" @bind="patient.Name" />
+                                        @* На бумаге печатаем текст, а не элемент формы: поле ввода
+                                           на листе выглядело бы как пустая строка. Поэтому копия
+                                           значения лежит рядом с полем, а не вместо него. *@
+                                        <span class="out-print-text">@patient.Name</span>
+                                    }
+                                    else
+                                    {
+                                        @patient.Name
+                                    }
+                                </td>
+                                <td>
+                                    @if (CanEditOutPatients)
+                                    {
+                                        <select class="fluent-input out-edit" @bind="patient.Gender">
+                                            <option value="">—</option>
+                                            <option value="М">М</option>
+                                            <option value="Ж">Ж</option>
+                                        </select>
+                                        <span class="out-print-text">@patient.Gender</span>
+                                    }
+                                    else
+                                    {
+                                        @patient.Gender
+                                    }
+                                </td>
+                                <td>
+                                    @if (CanEditOutPatients)
+                                    {
+                                        @* Возраст в V1 парсился в int, и «3.5» роняло расчёт
+                                           всего блока. Поэтому и здесь он остаётся текстом,
+                                           а взрослый/ребёнок определяется при разборе. *@
+                                        <div class="out-age">
+                                            <input type="text" class="fluent-input out-edit out-age-years" placeholder="лет"
+                                                   @bind="patient.AgeYears" />
+                                            <input type="text" class="fluent-input out-edit out-age-month" placeholder="мес"
+                                                   @bind="patient.AgeMonth" />
+                                        </div>
+                                        <span class="out-print-text">@AgeText(patient.AgeYears, patient.AgeMonth)</span>
+                                    }
+                                    else
+                                    {
+                                        @AgeText(patient.AgeYears, patient.AgeMonth)
+                                    }
+                                </td>
+                                <td>
+                                    @if (CanEditOutPatients)
+                                    {
+                                        <input type="text" class="fluent-input out-edit" @bind="patient.Diagnos" />
+                                        <span class="out-print-text">@patient.Diagnos</span>
+                                    }
+                                    else
+                                    {
+                                        @patient.Diagnos
+                                    }
+                                </td>
+                                <td>
+                                    @if (CanEditOutPatients)
+                                    {
+                                        <OutFieldSelect Options="ShippedOptions"
+                                                        Value="@(OutSelectValue(patient, OutField.Shipped))"
+                                                        Custom="@(OutFieldCustom(patient, OutField.Shipped))"
+                                                        ManualValue="@patient.Shipped"
+                                                        OnChange="@((ChangeEventArgs e) => SelectOutField(patient, OutField.Shipped, e))"
+                                                        OnInput="@((ChangeEventArgs e) => SetValue(patient, OutField.Shipped, e.Value?.ToString()))" />
+                                        <span class="out-print-text">@patient.Shipped</span>
+                                    }
+                                    else
+                                    {
+                                        @patient.Shipped
+                                    }
+                                </td>
+                                <td>
+                                    @if (CanEditOutPatients)
+                                    {
+                                        <OutFieldSelect Options="SubmitedFromOptions"
+                                                        Value="@(OutSelectValue(patient, OutField.SubmitedFrom))"
+                                                        Custom="@(OutFieldCustom(patient, OutField.SubmitedFrom))"
+                                                        ManualValue="@patient.SubmitedFrom"
+                                                        OnChange="@((ChangeEventArgs e) => SelectOutField(patient, OutField.SubmitedFrom, e))"
+                                                        OnInput="@((ChangeEventArgs e) => SetValue(patient, OutField.SubmitedFrom, e.Value?.ToString()))" />
+                                        <span class="out-print-text">@patient.SubmitedFrom</span>
+                                    }
+                                    else
+                                    {
+                                        @patient.SubmitedFrom
+                                    }
+                                </td>
+                                <td>
+                                    @if (CanEditOutPatients)
+                                    {
+                                        <OutFieldSelect Options="SubmitedToOptions"
+                                                        Value="@(OutSelectValue(patient, OutField.SubmitedTo))"
+                                                        Custom="@(OutFieldCustom(patient, OutField.SubmitedTo))"
+                                                        ManualValue="@patient.SubmitedTo"
+                                                        OnChange="@((ChangeEventArgs e) => SelectOutField(patient, OutField.SubmitedTo, e))"
+                                                        OnInput="@((ChangeEventArgs e) => SetValue(patient, OutField.SubmitedTo, e.Value?.ToString()))" />
+                                        <span class="out-print-text">@patient.SubmitedTo</span>
+                                    }
+                                    else
+                                    {
+                                        @patient.SubmitedTo
+                                    }
+                                </td>
+                                <td>
+                                    @* У старых записей Route пуст и определяется разбором текста,
+                                       поэтому в списке видно и «куда» — по одному маршруту
+                                       нельзя понять, куда поехал пациент. *@
+                                    @if (CanEditOutPatients)
+                                    {
+                                        <select class="fluent-input out-edit" @bind="patient.Route">
+                                            @foreach (var option in OutRoutes)
+                                            {
+                                                <option value="@option">@RouteTitle(option)</option>
+                                            }
+                                        </select>
+                                        <span class="out-print-text">@(route is null ? string.Empty : RouteTitle(route.Value))</span>
+                                    }
+                                    else
+                                    {
+                                        @(route is null ? string.Empty : RouteTitle(route.Value))
+                                    }
+                                </td>
+                                @if (CanEditOutPatients)
+                                {
+                                    <td class="duty-actions report-no-print">
+                                        <button type="button" @onclick="() => UpdateOutPatient(patient)"
+                                                class="fluent-icon-btn" title="Сохранить">&#9998;</button>
+                                        <button type="button" @onclick="() => DeleteOutPatient(patient)"
+                                                class="fluent-icon-btn fluent-icon-btn-danger" title="Удалить">&#128465;</button>
+                                    </td>
+                                }
+                            </tr>
+                        }
+
+                        @if (CanEditOutPatients)
+                        {
+                            <tr class="out-add-row report-no-print">
+                                <td><input type="text" class="fluent-input" placeholder="ФИО" @bind="OutDraft.Name" /></td>
+                                <td>
+                                    <select class="fluent-input" @bind="OutDraft.Gender">
+                                        <option value="">—</option>
+                                        <option value="М">М</option>
+                                        <option value="Ж">Ж</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <div class="out-age">
+                                        <input type="text" class="fluent-input out-age-years" placeholder="лет" @bind="OutDraft.AgeYears" />
+                                        <input type="text" class="fluent-input out-age-month" placeholder="мес" @bind="OutDraft.AgeMonth" />
+                                    </div>
+                                </td>
+                                <td><input type="text" class="fluent-input" placeholder="Диагноз" @bind="OutDraft.Diagnos" /></td>
+                                <td>
+                                    <OutFieldSelect Options="ShippedOptions"
+                                                    Value="@(OutDraftSelectValue(OutField.Shipped))"
+                                                    Custom="@(OutDraftFieldCustom(OutField.Shipped))"
+                                                    ManualValue="@OutDraft.Shipped"
+                                                    OnChange="@((ChangeEventArgs e) => SelectOutDraftField(OutField.Shipped, e))"
+                                                    OnInput="@((ChangeEventArgs e) => SetDraftValue(OutField.Shipped, e.Value?.ToString()))" />
+                                </td>
+                                <td>
+                                    <OutFieldSelect Options="SubmitedFromOptions"
+                                                    Value="@(OutDraftSelectValue(OutField.SubmitedFrom))"
+                                                    Custom="@(OutDraftFieldCustom(OutField.SubmitedFrom))"
+                                                    ManualValue="@OutDraft.SubmitedFrom"
+                                                    OnChange="@((ChangeEventArgs e) => SelectOutDraftField(OutField.SubmitedFrom, e))"
+                                                    OnInput="@((ChangeEventArgs e) => SetDraftValue(OutField.SubmitedFrom, e.Value?.ToString()))" />
+                                </td>
+                                <td>
+                                    <OutFieldSelect Options="SubmitedToOptions"
+                                                    Value="@(OutDraftSelectValue(OutField.SubmitedTo))"
+                                                    Custom="@(OutDraftFieldCustom(OutField.SubmitedTo))"
+                                                    ManualValue="@OutDraft.SubmitedTo"
+                                                    OnChange="@((ChangeEventArgs e) => SelectOutDraftField(OutField.SubmitedTo, e))"
+                                                    OnInput="@((ChangeEventArgs e) => SetDraftValue(OutField.SubmitedTo, e.Value?.ToString()))" />
+                                </td>
+                                <td>
+                                    <select class="fluent-input" @bind="OutDraft.Route">
+                                        @foreach (var option in OutRoutes)
+                                        {
+                                            <option value="@option">@RouteTitle(option)</option>
+                                        }
+                                    </select>
+                                </td>
+                                <td class="duty-actions">
+                                    <button type="button" @onclick="AddOutPatient" class="fluent-btn-accent">+</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </section>
+
+            <div class="report-foot report-no-print">
+                <button type="button" class="fluent-btn-accent" @onclick="Print">Печать</button>
+            </div>
+
+            <div class="report-unlock report-no-print">
+                @if (IsPastDay)
+                {
+                    <p class="report-eyebrow">Сводка за прошлые отчётные сутки</p>
+                    <p class="report-hint">Сейчас показаны данные за @ReportDate.ToString("dd.MM.yyyy").</p>
+                    <button type="button" class="fluent-btn-standard" @onclick="GoToToday">&larr; Вернуться к текущим суткам</button>
+                }
+                else
+                {
+                    <p class="report-eyebrow">Сводка за прошлые отчётные сутки</p>
+                    <p class="report-hint">
+                        Выберите дату отчётных суток в календаре. Глубина перехода не ограничена.
+                    </p>
+
+                    <div class="report-unlock-row">
+                        <div class="report-unlock-field">
+                            <label class="report-meta-label" for="sumPickDate">Дата отчётных суток</label>
+                            <input id="sumPickDate" type="date" class="fluent-input"
+                                   min="@MinPickDate" max="@MaxPickDate" @bind="PickDate" />
+                        </div>
+                        <button type="button" class="fluent-btn-accent" @onclick="GoToDate">Перейти</button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(OffsetError))
+                    {
+                        <p class="report-unlock-error">@OffsetError</p>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>

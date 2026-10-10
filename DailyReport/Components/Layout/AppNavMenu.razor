@@ -1,0 +1,59 @@
+@* Верхняя панель — общий компонент. Собственный набор стилей: Tailwind + токены Windows/Fluent 2. *@
+@inject IJSRuntime JS
+
+<nav class="flex h-14 items-center justify-between gap-4 px-6">
+    <div class="flex flex-1 items-center justify-center gap-8">
+        <NavLink href="/" Match="NavLinkMatch.All" ActiveClass="text-accent"
+                 class="flex items-center gap-2 text-lg font-semibold text-foreground-1 transition-colors hover:text-accent focus-fluent">
+            Сводки
+        </NavLink>
+        <div class="flex gap-1">
+            <NavLink href="#" ActiveClass="bg-fill-subtle text-accent"
+                     class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">
+                Пожарная сводка
+            </NavLink>
+            <NavLink href="#" ActiveClass="bg-fill-subtle text-accent"
+                     class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">
+                Места
+            </NavLink>
+            <NavLink href="#" ActiveClass="bg-fill-subtle text-accent"
+                     class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">
+                Администрирование (палаты)
+            </NavLink>
+            <NavLink href="/admin" ActiveClass="bg-fill-subtle text-accent"
+                     class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">
+                Администрирование (сводка)
+            </NavLink>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-1 rounded-control bg-fill-subtle p-1 text-sm" role="group" aria-label="Тема оформления">
+        <button type="button" @onclick="() => SetTheme(false)" class="@ToggleClass(false)">Светлая</button>
+        <button type="button" @onclick="() => SetTheme(true)" class="@ToggleClass(true)">Тёмная</button>
+    </div>
+</nav>
+
+@code {
+    private bool IsDark;
+
+    private string ToggleClass(bool dark) =>
+        IsDark == dark
+            ? "rounded-[3px] bg-neutral-layer-2 px-3 py-1 font-medium text-foreground-1 shadow-card transition-colors focus-fluent"
+            : "rounded-[3px] px-3 py-1 text-foreground-2 transition-colors hover:text-foreground-1 focus-fluent";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            IsDark = await JS.InvokeAsync<bool>("theme.current");
+            StateHasChanged();
+        }
+    }
+
+    private async Task SetTheme(bool dark)
+    {
+        if (IsDark == dark) return;
+        IsDark = dark;
+        await JS.InvokeVoidAsync("theme.set", dark);
+    }
+}

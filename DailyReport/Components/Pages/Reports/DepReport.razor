@@ -1,0 +1,377 @@
+@page "/depreport/{DepartmentId:int}"
+@using DailyReport.Models
+@using DailyReport.Models.Reports
+
+<PageTitle>@(Department is null ? "Сводка отделения" : "Сводка — " + Department.Name)</PageTitle>
+
+<div class="report-layout">
+    <p class="mb-2 text-sm report-no-print">
+        <a href="/" class="fluent-link">&larr; К списку отделений</a>
+    </p>
+
+    <div class="report-card">
+        <div class="report-head report-no-print">
+            <p class="report-eyebrow">Сводка отделения</p>
+            <h1 class="report-title">@(Department?.Name ?? "Отделение не найдено")</h1>
+        </div>
+
+        @if (Department is null)
+        {
+            <div class="report-foot"><span class="report-hint">Отделение не найдено.</span></div>
+        }
+        else if (!IsPatientDepartment)
+        {
+            <div class="report-foot">
+                <span class="report-hint">Отделение «@Department.Name» не заполняет сводку по пациентам.</span>
+            </div>
+        }
+        else if (Report is null)
+        {
+            <div class="report-foot"><span class="report-hint">Загрузка...</span></div>
+        }
+        else
+        {
+            <div class="report-meta">
+                <div class="report-meta-item report-print-only">
+                    <span class="report-meta-label">Отделение</span>
+                    <span class="report-meta-value">@Department?.Name</span>
+                </div>
+                <div class="report-meta-item">
+                    <span class="report-meta-label">Отчётные сутки</span>
+                    <span class="report-meta-value">@ReportDate.ToString("dd.MM.yyyy")</span>
+                </div>
+                <div class="report-meta-item">
+                    <label class="report-meta-label" for="dutyNurse">Дежурная м/с</label>
+                    <select id="dutyNurse" class="fluent-input report-field" value="@DutyNurse"
+                            @onchange="e => DutyNurse = e.Value?.ToString() ?? string.Empty"
+                            title="Выбрать медсестру из справочника персонала">
+                        <option value="">— не выбрана —</option>
+                        @foreach (var n in Nurses)
+                        {
+                            <option value="@n.Name" selected="@(string.Equals(DutyNurse, n.Name, StringComparison.OrdinalIgnoreCase))">@n.Name</option>
+                        }
+                        @if (!string.IsNullOrEmpty(DutyNurse) && !Nurses.Any(n => string.Equals(n.Name, DutyNurse, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            <option value="@DutyNurse" selected>@DutyNurse</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            @if (IsPastDay)
+            {
+                <p class="report-banner report-no-print">
+                    Открыта сводка за прошлые сутки. «Сохранить» перезапишет отчёт за @ReportDate.ToString("dd.MM.yyyy").
+                    Чтобы вернуться к текущим суткам, воспользуйтесь формой внизу.
+                </p>
+            }
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Показатель</th>
+                        @if (IsSimpleForm)
+                        {
+                            <th class="report-cell-num">Всего пациентов</th>
+                        }
+                        else
+                        {
+                            <th class="report-cell-num">Взрослые</th>
+                            <th class="report-cell-num">Дети</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (IsSimpleForm)
+                    {
+                        <tr class="report-row">
+                            <td class="report-cell-label">Обратилось</td>
+                            <td class="report-cell-num">
+                                <input type="number" min="0" class="report-input" @bind="Report.present" @bind:event="oninput" />
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @* движение *@
+                        <tr class="report-section"><th colspan="3">Движение</th></tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Состояло</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" readonly @bind="Report.existed" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" readonly @bind="Report.existedChildren" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Поступило</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" disabled="@IsOrit" @bind="Report.income" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" disabled="@IsOrit" @bind="Report.incomeChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Выбыло</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" disabled="@IsOrit" @bind="Report.outcome" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" disabled="@IsOrit" @bind="Report.outcomeChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Прикреплено в ОРИТ</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" disabled="@IsOrit" @bind="Report.attachedToORIT" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" disabled="@IsOrit" @bind="Report.attachedToORITCildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Переведено из отделения</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.movedOutDep" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.movedOutDepChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Переведено в отделение</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.movedInDep" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.movedInDepChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Умерло</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.died" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.diedChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        @* «Состоит» не вводится вручную, а считается по движению, как в первой версии:
+   состояло − выбыло + поступило − переведено из отделения + переведено в отделение − умерло. *@
+                        <tr class="report-row">
+                            <td class="report-cell-label">Состоит</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" readonly value="@PresentComputed" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" readonly value="@PresentChildrensComputed" /></td>
+                        </tr>
+
+                        @* кислород *@
+                        <tr class="report-section"><th colspan="3">Кислород</th></tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">ИВЛ</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oIVL" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oIVLChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">НИВЛ</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oNIVL" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oNIVLChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">НИВЛ+ВПО</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oNIVLVPO" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oNIVLVPOChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">НИВЛ+КМ</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oNIVLMask" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oNIVLMaskChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Лицевая маска</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oMask" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.oMaskChildren" @bind:event="oninput" /></td>
+                        </tr>
+                        @if (OxygenVisible)
+                        {
+                            <tr class="report-row">
+                                <td class="report-cell-label">@OxygenName</td>
+                                <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.optionalOxygen" @bind:event="oninput" /></td>
+                                <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.optionalOxygenChildren" @bind:event="oninput" /></td>
+                            </tr>
+                        }
+
+                        @* социальный статус *@
+                        <tr class="report-section"><th colspan="3">Социальный статус</th></tr>
+                        @if (SocialVisible)
+                        {
+                            <tr class="report-row">
+                                <td class="report-cell-label">@SocialName</td>
+                                <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.optionalSocial" @bind:event="oninput" /></td>
+                                <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.optionalSocialChildren" @bind:event="oninput" /></td>
+                            </tr>
+                        }
+                        <tr class="report-row">
+                            <td class="report-cell-label">Беременные</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.pregnant" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.pregnantChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Пациенты из зон отдыха</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.restZone" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.restZoneChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Инокраевые</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.outRegions" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.outRegionsChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Иностранные граждане</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.forein" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.foreinChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Прибывшие из присоединённых областей (ЛНР, ДНР, ХО, ЗО)</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.LNR_DNR" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.LNR_DNRChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Прибывшие из остальных областей Украины</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.otherUkrane" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.otherUkraneChildren" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Поступили из другой МО</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.incomeHospital" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.incomeHospitalChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Переведены в другую МО</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.outcomeHospital" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.outcomeHospitalChildrens" @bind:event="oninput" /></td>
+                        </tr>
+
+                        @* нозологии *@
+                        <tr class="report-section"><th colspan="3">Нозологии</th></tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">U 07.1 Covid-19</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.U071" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.U071Childrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">U 07.2 Covid-19</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.U072" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.U072Childrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">ОРИ</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.ORVI" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.ORVIChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Пневмония</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.pneumonia" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.pneumoniaChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Грипп</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.grippe" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.grippeChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Корь</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.measles" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.measlesChildren" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">ОКИ</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.OKI" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.OKIChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Менингит, энцефалит, миелит</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.meningit" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.meningitChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Сепсис</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.sepsis" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.sepsisChildren" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Гепатит</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.hepatit" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.hepatitChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">В-20</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.HIV" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.HIVCildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        @if (NozologyVisible)
+                        {
+                            <tr class="report-row">
+                                <td class="report-cell-label">@NozologyName</td>
+                                <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.optionalNozology" @bind:event="oninput" /></td>
+                                <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.optionalNozologyChildren" @bind:event="oninput" /></td>
+                            </tr>
+                        }
+                        <tr class="report-row">
+                            <td class="report-cell-label">Прочие</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.other" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.otherChildrens" @bind:event="oninput" /></td>
+                        </tr>
+
+                        @* уход *@
+                        <tr class="report-section"><th colspan="3">Уход</th></tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">
+                                Лица по уходу (общее количество)
+                                <span class="report-hint block report-no-print">В этом поле указывать всех по уходу, и до 4х лет и старше!!!</span>
+                            </td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.care" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Лица по уходу до 4х лет или с детьми инвалидами</td>
+                            <td colspan="2"><input type="number" min="0" class="report-input" @bind="Report.careDisodered" @bind:event="oninput" /></td>
+                        </tr>
+                        @if (CareVisible)
+                        {
+                            <tr class="report-row">
+                                <td class="report-cell-label">@CareName</td>
+                                <td colspan="2"><input type="number" min="0" class="report-input" @bind="Report.optionalCare" @bind:event="oninput" /></td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <div class="report-foot report-no-print">
+                <button type="button" class="fluent-btn-accent @(SaveSweep ? "save-sweep" : null)" @onclick="Save">Сохранить</button>
+                @* У упрощённой формы (КДО, платные услуги) загружать нечего: «Обратилось»
+                   вводится руками и из предыдущей сводки не переносится. Как в V1. *@
+                @if (!IsPastDay && !IsSimpleForm)
+                {
+                    <button type="button" class="fluent-btn-standard" @onclick="LoadPrevious">Загрузить предыдущую сводку</button>
+                }
+                <button type="button" class="fluent-btn-standard" @onclick="Print">Печать</button>
+            </div>
+
+            <div class="report-unlock report-no-print">
+                @if (IsPastDay)
+                {
+                    <p class="report-eyebrow">Открыта сводка за прошлые отчётные сутки</p>
+                    <p class="report-hint">
+                        Сейчас в форме — отчёт за @ReportDate.ToString("dd.MM.yyyy").
+                        «Сохранить» перезапишет именно его.
+                    </p>
+                    <button type="button" class="fluent-btn-standard" @onclick="GoToToday">&larr; Вернуться к текущим суткам</button>
+                }
+                else
+                {
+                    <p class="report-eyebrow">Сводка за прошлые отчётные сутки</p>
+                    <p class="report-hint">
+                        Выберите дату отчётных суток в календаре и введите пароль. Прямыми ссылками и через адресную строку прошлые сутки не открываются.
+                    </p>
+
+                    <div class="report-unlock-row">
+                        <div class="report-unlock-field">
+                            <label class="report-meta-label" for="unlockPickDate">Дата отчётных суток</label>
+                            <input id="unlockPickDate" type="date" class="fluent-input"
+                                   min="@MinPickDate" max="@MaxPickDate" @bind="PickDate" />
+                        </div>
+                        <div class="report-unlock-field">
+                            <label class="report-meta-label" for="unlockPassword">Пароль</label>
+                            <input id="unlockPassword" type="password" class="fluent-input" @bind="UnlockPassword" @bind:event="oninput" />
+                        </div>
+                        <button type="button" class="fluent-btn-accent" @onclick="Unlock">Перейти</button>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(UnlockError))
+                    {
+                        <p class="report-unlock-error">@UnlockError</p>
+                    }
+                    @if (!string.IsNullOrEmpty(AccessUnavailableReason))
+                    {
+                        <p class="report-hint">@AccessUnavailableReason</p>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>

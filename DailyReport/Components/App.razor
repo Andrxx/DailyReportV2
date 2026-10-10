@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    <HeadOutlet />
+    <script>
+        try {
+            var s = localStorage.getItem('dr-theme');
+            var dk = s ? s === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (dk) document.documentElement.classList.add('dark');
+        } catch (e) { }
+    </script>
+<link rel="stylesheet" href="css/tailwind.css?v=3" />
+<link rel="stylesheet" href="css/site.css?v=3" />
+</head>
+<body>
+    <Routes @rendermode="InteractiveServer" />
+    <script src="js/theme.js"></script>
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>

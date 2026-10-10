@@ -1,0 +1,18 @@
+{
+  "name": "dailyreport",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "tw:build": "npx @tailwindcss/cli -i tailwind.css -o wwwroot/css/tailwind.css",
+    "tw:watch": "npx @tailwindcss/cli -i tailwind.css -o wwwroot/css/tailwind.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.3",
+    "tailwindcss": "^4.3.3"
+  }
+}

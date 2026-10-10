@@ -1,0 +1,20 @@
+@page "/"
+@using DailyReport.Models
+
+<PageTitle>Сводка отделений</PageTitle>
+
+<h1 class="page-title text-center">Сводка отделений</h1>
+
+<div class="flex flex-col items-center gap-2">
+    @foreach (var dep in Departments)
+    {
+        <a href="/depreport/@dep.Id" class="fluent-link">@dep.Name</a>
+    }
+</div>
+
+<div class="h-6" aria-hidden="true"></div>
+
+<div class="flex flex-col items-center gap-2">
+    <a href="/finalreport" class="fluent-link">Сводка по больнице</a>
+    <a href="@PlanReportUrl" class="fluent-link" title="@PlanDayTitle">Сводка для планерки</a>
+</div>
