@@ -54,6 +54,15 @@ namespace DailyReport.Models
                 // с reportDate IS NULL индексу не мешают.
                 entity.HasIndex(e => new { e.depNumber, e.reportDate }).IsUnique();
             });
+
+            modelBuilder.Entity<FireReport>(entity =>
+            {
+                entity.ToTable("FireReports");
+                // Одна пожарная сводка на подразделение в отчётные сутки. Служебные и
+                // исторические строки с ReportDate IS NULL индексу не мешают: в SQLite
+                // значения NULL в уникальном индексе считаются различными.
+                entity.HasIndex(e => new { e.DepNumber, e.ReportDate }).IsUnique();
+            });
         }
 
     }

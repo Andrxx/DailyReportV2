@@ -1,0 +1,106 @@
+@page "/firefinal"
+@using DailyReport.Models
+@using DailyReport.Models.Reports
+
+<PageTitle>Пожарная сводка по больнице</PageTitle>
+
+<div class="report-layout sum-layout">
+    <p class="mb-2 text-sm report-no-print">
+        <a href="/fireindex" class="fluent-link">&larr; К списку подразделений</a>
+    </p>
+
+    <div class="report-card sum-card">
+        <div class="report-head report-no-print">
+            <p class="report-eyebrow">Пожарная сводка</p>
+            <h1 class="report-title">Сводка по больнице</h1>
+        </div>
+
+        @if (Rows.Count == 0)
+        {
+            <div class="report-foot">
+                <span class="report-hint">Нет подразделений, участвующих в пожарной сводке.</span>
+            </div>
+        }
+        else
+        {
+            @* Печатная подпись: на экране скрыта, на бумаге скрыта шапка (.report-head),
+               поэтому подпись всегда идёт сразу под названием сводки. *@
+            <div class="report-print-only fire-print-title">
+                <span class="report-meta-label">Пожарная сводка по больнице</span>
+            </div>
+
+            <div class="report-meta">
+                <div class="report-meta-item">
+                    <span class="report-meta-label">Отчётные сутки</span>
+                    <span class="report-meta-value">@ReportDate.ToString("dd.MM.yyyy")</span>
+                </div>
+            </div>
+
+            <div class="sum-scroll">
+                <table class="fire-table">
+                    <colgroup>
+                        <col class="fire-col-name" />
+                        <col class="fire-col-num" />
+                        <col class="fire-col-num" />
+                        <col class="fire-col-num" />
+                        <col class="fire-col-wide" />
+                        <col class="fire-col-wide" />
+                        <col class="fire-col-num" />
+                        <col class="fire-col-num" />
+                        <col class="fire-col-num" />
+                        <col class="fire-col-wide" />
+                        <col class="fire-col-total" />
+                        <col class="fire-col-total" />
+                        <col class="fire-col-total" />
+                        <col class="fire-col-time" />
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>Отделение</th>
+                            <th>Взр</th>
+                            <th>Дети</th>
+                            <th>Уход</th>
+                            <th>Нетрансп. взр</th>
+                            <th>Нетрансп. дет</th>
+                            <th>Врачи</th>
+                            <th>м/с</th>
+                            <th>Сан</th>
+                            <th>Тех.персонал</th>
+                            <th>Всего взр</th>
+                            <th>Всего дет</th>
+                            <th>Всего человек</th>
+                            <th>Время сводки</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in Rows)
+                        {
+                            <tr>
+                                <td class="fire-cell-name">
+                                    @row.Department.Name
+                                </td>
+                                <td>@Cell(row.Adult)</td>
+                                <td>@Cell(row.Children)</td>
+                                <td>@Cell(row.Care)</td>
+                                <td>@Cell(row.NonTransportableAdults)</td>
+                                <td>@Cell(row.NonTransportableChildren)</td>
+                                <td>@Cell(row.Doctors)</td>
+                                <td>@Cell(row.Nurses)</td>
+                                <td>@Cell(row.Sanitarians)</td>
+                                <td>@Cell(row.Personel)</td>
+                                <td class="fire-cell-total">@Cell(row.TotalAdults)</td>
+                                <td class="fire-cell-total">@Cell(row.TotalChildren)</td>
+                                <td class="fire-cell-total">@Cell(row.TotalPeople)</td>
+                                <td class="fire-cell-time">@(row.Time ?? "—")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="report-foot report-no-print">
+                <button type="button" class="fluent-btn-accent" @onclick="Print">Печать</button>
+            </div>
+        }
+    </div>
+</div>

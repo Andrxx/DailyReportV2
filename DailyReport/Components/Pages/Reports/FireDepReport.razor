@@ -1,0 +1,125 @@
+@page "/firereport/{DepartmentId:int}"
+@using DailyReport.Models
+@using DailyReport.Models.Reports
+
+<PageTitle>@(Department is null ? "Пожарная сводка" : "Пожарная сводка — " + Department.Name)</PageTitle>
+
+<div class="report-layout">
+    <p class="mb-2 text-sm report-no-print">
+        <a href="/fireindex" class="fluent-link">&larr; К пожарной сводке</a>
+    </p>
+
+    <div class="report-card">
+        <div class="report-head report-no-print">
+            <p class="report-eyebrow">Пожарная сводка</p>
+            <h1 class="report-title">@(Department?.Name ?? "Подразделение не найдено")</h1>
+        </div>
+
+        @if (Department is null)
+        {
+            <div class="report-foot"><span class="report-hint">Подразделение не найдено.</span></div>
+        }
+        else if (!IsFireDepartment)
+        {
+            <div class="report-foot">
+                <span class="report-hint">Подразделение «@Department.Name» не участвует в пожарной сводке.</span>
+            </div>
+        }
+        else if (Report is null)
+        {
+            <div class="report-foot"><span class="report-hint">Загрузка...</span></div>
+        }
+        else
+        {
+            <div class="report-meta">
+                <div class="report-meta-item report-print-only">
+                    <span class="report-meta-label">Подразделение</span>
+                    <span class="report-meta-value">@Department?.Name</span>
+                </div>
+                <div class="report-meta-item">
+                    <span class="report-meta-label">Отчётные сутки</span>
+                    <span class="report-meta-value">@ReportDate.ToString("dd.MM.yyyy")</span>
+                </div>
+                @if (!string.IsNullOrEmpty(SavedTime))
+                {
+                    <div class="report-meta-item">
+                        <span class="report-meta-label">Сохранено</span>
+                        <span class="report-meta-value">@SavedTime</span>
+                    </div>
+                }
+            </div>
+
+            @if (IsLongStored)
+            {
+                <p class="report-banner report-no-print">
+                    Долгохранимое значение: задаётся один раз и берётся в сводке до следующего изменения.
+                    Сохранив сейчас, вы обновите его на новые сутки.
+                </p>
+            }
+
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Показатель</th>
+                        <th class="report-cell-num">Человек</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="report-row">
+                        <td class="report-cell-label">Взрослых</td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.Adult" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">Детей</td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.Children" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">
+                            Лица по уходу
+                            <span class="report-hint block report-no-print">Категория «Уход» первой версии.</span>
+                        </td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.Care" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">
+                            Нетранспортабельные взрослые
+                            <span class="report-hint block report-no-print">Входят в число взрослых: в итоги не добавляются.</span>
+                        </td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.NonTransportableAdults" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">
+                            Нетранспортабельные дети
+                            <span class="report-hint block report-no-print">Входят в число детей: в итоги не добавляются.</span>
+                        </td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.NonTransportableChildren" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">Врачи</td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.Doctors" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">Медицинские сёстры (м/с)</td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.Nurses" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">Санитары</td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.Sanitarians" @bind:event="oninput" /></td>
+                    </tr>
+                    <tr class="report-row">
+                        <td class="report-cell-label">
+                            Персонал
+                            <span class="report-hint block report-no-print">Охрана и тех.персонал, проживающие в общежитии: общее число своих людей.</span>
+                        </td>
+                        <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.Personel" @bind:event="oninput" /></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="report-foot report-no-print">
+                <button type="button" class="fluent-btn-accent @(SaveSweep ? "save-sweep" : null)" @onclick="Save">Сохранить</button>
+                <button type="button" class="fluent-btn-standard" @onclick="Print">Печать</button>
+            </div>
+        }
+    </div>
+</div>

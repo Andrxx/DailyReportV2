@@ -9,8 +9,24 @@ namespace DailyReport.Models.Reports
         public int Adult { get; set; }
         public int Children { get; set; }
         public int Care { get; set; }
+        /// <summary>
+        /// Нетранспортабельные взрослые. Это ПОДМНОЖЕСТВО пациентов (уже входит в Adult),
+        /// поэтому в итоги «Всего взр/дет/человек» НЕ добавляется — только показывается.
+        /// </summary>
+        public int NonTransportableAdults { get; set; }
+        /// <summary>
+        /// Нетранспортабельные дети. Это ПОДМНОЖЕСТВО пациентов (уже входит в Children),
+        /// поэтому в итоги «Всего взр/дет/человек» НЕ добавляется — только показывается.
+        /// </summary>
+        public int NonTransportableChildren { get; set; }
         public int Personel { get; set; }
         public DateTime Date { get; set; }
+        /// <summary>
+        /// Отчётные сутки пожарной сводки (чистая дата). Граница суток у пожарной
+        /// сводки своя — 08:00, она не совпадает с границей сводки отделений (07:30).
+        /// Date остаётся только отметкой о фактическом времени сохранения.
+        /// </summary>
+        public DateOnly? ReportDate { get; set; }
         public int? ShowOrder { get; set; }
         [NotMapped]
         public bool IsAdded { get; set; }

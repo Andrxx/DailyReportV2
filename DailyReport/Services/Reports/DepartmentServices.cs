@@ -83,5 +83,19 @@ namespace DailyReport.Services.Reports
                     where d.Id == id
                     select d).Include(d => d.Settings).FirstOrDefault();
         }
+
+        /// <summary>
+        /// Подразделения для пожарной сводки (разрез 2). Отбор ведётся по флагу
+        /// DepartmentSettings.ShowOnFireReport, порядок — строго Department.ShowOrder.
+        /// В отличие от сводки пациентов, сюда входят и непрофильные подразделения
+        /// (лаборатория, охрана, общежитие).
+        /// </summary>
+        public static List<Department> GetFireReportDepartments(ApplicationContext context)
+        {
+            return (from d in context.Departments
+                    where d.Settings != null && d.Settings.ShowOnFireReport
+                    orderby d.ShowOrder
+                    select d).Include(d => d.Settings).ToList();
+        }
     }
 }

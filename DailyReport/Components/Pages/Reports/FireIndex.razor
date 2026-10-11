@@ -1,0 +1,19 @@
+@page "/fireindex"
+@using DailyReport.Models
+
+<PageTitle>Пожарная сводка</PageTitle>
+
+<h1 class="page-title text-center">Пожарная сводка подразделений</h1>
+
+<div class="flex flex-col items-center gap-2">
+    @foreach (var dep in Departments)
+    {
+        <a href="/firereport/@dep.Id" class="fluent-link">@dep.Name</a>
+    }
+</div>
+
+<div class="h-6" aria-hidden="true"></div>
+
+<div class="flex flex-col items-center gap-2">
+    <a href="/firefinal" class="fluent-link">Сводка по больнице</a>
+</div>

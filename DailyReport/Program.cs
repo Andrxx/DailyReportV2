@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlite(
 
 builder.Services.AddScoped<DepReportService>();
 builder.Services.AddScoped<SummaryService>();
+builder.Services.AddScoped<FireReportService>();
 builder.Services.AddScoped<PersonelService>();
 builder.Services.AddScoped<DutyService>();
 builder.Services.AddScoped<OutPatientService>();
@@ -28,6 +29,10 @@ builder.Services.AddScoped<IAccessControl, PasswordAccessControl>();
 // отчётные сутки: секция "Reporting" конфигурации, переопределяется переменными окружения
 builder.Services.Configure<ReportingOptions>(builder.Configuration.GetSection("Reporting"));
 builder.Services.AddSingleton<ReportingCalendar>();
+
+// отчётные сутки пожарной сводки: своя граница 08:00, секция "FireReporting"
+builder.Services.Configure<FireReportingOptions>(builder.Configuration.GetSection("FireReporting"));
+builder.Services.AddSingleton<FireReportingCalendar>();
 
 builder.Services.AddOpenApi();
 

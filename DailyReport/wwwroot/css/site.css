@@ -969,6 +969,14 @@ html.dark {
         font-size: 0.8125rem;
     }
 
+    /* Стрелка выпадающего списка нужна при заполнении, но на бумаге лишняя.
+       Прячем ТОЛЬКО при печати: на экране appearance остаётся обычным. */
+    .report-field {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+
     /* Таблица: полноценная сетка вместо одиночных нижних границ строк. */
     .report-table {
         font-size: 0.75rem;
@@ -1220,5 +1228,139 @@ html.dark {
 
     .out-table tr {
         break-inside: avoid;
+    }
+}
+
+/* Пожарная сводка (разрез 2): итоговая таблица. Раскладка фиксированная, как у
+   сводки отделений: ширины по <col>, иначе подразделения разной ширины. */
+.fire-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    font-size: 0.6875rem;
+    border: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+.fire-col-name {
+    width: 21%;
+}
+
+.fire-col-num {
+    width: 4%;
+}
+
+/* Шире обычных числовых: длинные подписи «Нетрансп. взр/дет», «Тех.персонал». */
+.fire-col-wide {
+    width: 6.5%;
+}
+
+.fire-col-total {
+    width: 9%;
+}
+
+.fire-col-time {
+    width: 8.5%;
+}
+
+.fire-table thead th {
+    font-size: 0.5625rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--color-foreground-3, #797979);
+    text-align: right;
+    padding: 0.375rem 0.5rem;
+    background: var(--color-neutral-layer-2, #FFFFFF);
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+.fire-table thead th:first-child {
+    text-align: left;
+}
+
+.fire-table td {
+    padding: 0.375rem 0.5rem;
+    text-align: right;
+    color: var(--color-foreground-1, #1A1A1A);
+    border-top: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+/* Тонкая вертикальная линия между всеми колонками. Существующие линии
+   (внешняя рамка, горизонтальные, 2px-разделитель блока итогов) не меняются. */
+.fire-table thead th:not(:first-child),
+.fire-table td:not(:first-child) {
+    border-left: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+.fire-cell-name {
+    text-align: left;
+    font-weight: 500;
+}
+
+.fire-cell-time {
+    white-space: nowrap;
+}
+
+/* Блок «Всего взр / Всего дет / Всего человек» отделён от остальных колонок. */
+.fire-table td.fire-cell-total {
+    border-left: 2px solid var(--color-foreground-3, #797979);
+}
+
+.fire-print-title .report-meta-value {
+    font-size: 1rem;
+}
+
+@media print {
+    .fire-table {
+        font-size: 0.625rem;
+        border: 1px solid #000000;
+    }
+
+    .fire-table thead {
+        display: table-header-group;
+    }
+
+    .fire-table thead th,
+    .fire-table td {
+        background: transparent;
+        color: #000000;
+        border: 1px solid #000000;
+        overflow-wrap: anywhere;
+    }
+
+    /* Вертикальные линии на бумаге — чёрные, той же толщины 1px. */
+    .fire-table thead th:not(:first-child),
+    .fire-table td:not(:first-child) {
+        border-left: 1px solid #000000;
+    }
+
+    .fire-table thead th {
+        padding: 0.8mm 1mm;
+    }
+
+    .fire-table td {
+        padding: 0.35mm 1mm;
+    }
+
+    .fire-table td.fire-cell-total {
+        border-left: 2px solid #000000;
+    }
+
+    .fire-cell-name {
+        white-space: normal;
+    }
+
+    .fire-row {
+        break-inside: avoid;
+    }
+
+    /* Подпись сводки на бумаге: чёрная, без полей по бокам. */
+    .fire-print-title {
+        padding: 0 0 1mm;
+    }
+
+    .fire-print-title .report-meta-label {
+        font-size: 0.875rem;
+        font-weight: 600;
     }
 }

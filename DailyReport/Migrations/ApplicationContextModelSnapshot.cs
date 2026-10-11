@@ -789,11 +789,20 @@ namespace DailyReport.Migrations
                     b.Property<int>("Doctors")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("NonTransportableAdults")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("NonTransportableChildren")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Nurses")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("Personel")
                         .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly?>("ReportDate")
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("Sanitarians")
                         .HasColumnType("INTEGER");
@@ -803,7 +812,10 @@ namespace DailyReport.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("FireReports");
+                    b.HasIndex("DepNumber", "ReportDate")
+                        .IsUnique();
+
+                    b.ToTable("FireReports", (string)null);
                 });
 
             modelBuilder.Entity("DailyReport.Models.Reports.ReportLine", b =>

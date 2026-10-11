@@ -127,6 +127,16 @@ namespace DailyReport.Components.Pages.Reports
         }
 
         /// <summary>
+        /// Ширину селектора дежурной м/с подгоняем под самое длинное имя списка,
+        /// ограничивая свободным местом строки. Замер делает JS (wwwroot/js/dutyNurse.js).
+        /// </summary>
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+            await JsRuntime.InvokeVoidAsync("dutyNurseWidth", "dutyNurse");
+        }
+
+        /// <summary>
         /// Медсёстры справочника, отсортированные для селектора: сначала своего отделения,
         /// затем чужие; внутри обеих групп — по алфавиту.
         /// </summary>
