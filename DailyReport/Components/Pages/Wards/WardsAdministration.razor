@@ -1,0 +1,28 @@
+@page "/wards"
+@using DailyReport.Models
+
+<PageTitle>Администрирование (палаты)</PageTitle>
+
+<div class="max-w-3xl px-4 py-6">
+    <h1 class="page-title">Администрирование (палаты)</h1>
+    <p class="mb-4 max-w-4xl text-sm text-foreground-3">
+        Выберите отделение, чтобы настроить его палаты и число мест. Номер и вместимость
+        палаты меняются только здесь.
+    </p>
+
+    @if (Departments.Count == 0)
+    {
+        <div class="mt-4 rounded-card border border-stroke bg-neutral-layer-2 p-6 text-center text-foreground-3 shadow-card">
+            Отделений с палатами нет.
+        </div>
+    }
+    else
+    {
+        <div class="flex flex-col gap-2">
+            @foreach (var dep in Departments)
+            {
+                <a href="/wards/@dep.Id" class="fluent-link">@dep.Name</a>
+            }
+        </div>
+    }
+</div>

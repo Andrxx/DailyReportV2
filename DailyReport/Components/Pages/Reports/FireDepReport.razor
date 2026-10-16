@@ -120,6 +120,59 @@
                 <button type="button" class="fluent-btn-accent @(SaveSweep ? "save-sweep" : null)" @onclick="Save">Сохранить</button>
                 <button type="button" class="fluent-btn-standard" @onclick="Print">Печать</button>
             </div>
+
+            @* Дежурные медсёстры отделения: назначаются на текущие сутки пожарной сводки.
+               ФИО выбирается из справочника, телефон подставляется из него же. *@
+            <section class="duty-shift nurse-shift @(Nurses.Count == 0 ? "nurse-empty" : null)">
+                <h2 class="duty-title">Дежурные медицинские сёстры</h2>
+                <p class="report-hint duty-hint report-no-print">
+                    Сутки пожарной сводки начинаются в 08:00. Телефон подставляется из справочника персонала.
+                </p>
+
+                @if (!string.IsNullOrEmpty(NurseError))
+                {
+                    <p class="report-unlock-error duty-error">@NurseError</p>
+                }
+
+                <table class="duty-table nurse-table">
+                    <thead>
+                        <tr>
+                            <th class="nurse-col-name">Дежурная медсестра</th>
+                            <th class="nurse-col-phone">Телефон</th>
+                            <th class="duty-col-act report-no-print"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var nurse in Nurses)
+                        {
+                            <tr>
+                                <td>@nurse.name</td>
+                                <td>@(string.IsNullOrWhiteSpace(nurse.Phone) ? "—" : nurse.Phone)</td>
+                                <td class="duty-actions report-no-print">
+                                    <button type="button" @onclick="() => DeleteNurse(nurse)"
+                                            class="fluent-icon-btn fluent-icon-btn-danger" title="Удалить">&#128465;</button>
+                                </td>
+                            </tr>
+                        }
+
+                        <tr class="duty-add-row report-no-print">
+                            <td>
+                                <select class="fluent-input" @bind="NurseDraftName">
+                                    <option value="">Выбрать медсестру</option>
+                                    @foreach (var person in NurseOptions)
+                                    {
+                                        <option value="@person.Name">@person.Name</option>
+                                    }
+                                </select>
+                            </td>
+                            <td><span class="report-hint">из справочника</span></td>
+                            <td class="duty-actions">
+                                <button type="button" class="fluent-btn-accent" @onclick="AddNurse">+</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
         }
     </div>
 </div>

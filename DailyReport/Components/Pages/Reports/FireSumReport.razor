@@ -36,6 +36,44 @@
                 </div>
             </div>
 
+            @* Дежурные медсёстры и технические службы идут перед таблицей сводки, как
+               в первой версии. Выводятся все подразделения пожарной сводки в порядке
+               ShowOrder; там, где контактов нет, стоит подпись «Не назначены». *@
+            <section class="duty-shift nurse-shift">
+                <h2 class="duty-title">Дежурные медицинские сёстры</h2>
+
+                @foreach (var group in NurseGroups)
+                {
+                    <div class="duty-block @(group.SkipInPrint ? "nurse-print-skip" : null)">
+                        <h3 class="duty-block-title">@group.DepartmentName</h3>
+                        @if (group.Entries.Count == 0)
+                        {
+                            <p class="report-hint">Не назначены.</p>
+                        }
+                        else
+                        {
+                            <table class="duty-table nurse-table">
+                                <thead>
+                                    <tr>
+                                        <th class="nurse-col-name">Медсестра</th>
+                                        <th class="nurse-col-phone">Телефон</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var nurse in group.Entries)
+                                    {
+                                        <tr>
+                                            <td>@nurse.Name</td>
+                                            <td>@(string.IsNullOrWhiteSpace(nurse.Phone) ? "—" : nurse.Phone)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                    </div>
+                }
+            </section>
+
             <div class="sum-scroll">
                 <table class="fire-table">
                     <colgroup>
@@ -99,7 +137,8 @@
             </div>
 
             <div class="report-foot report-no-print">
-                <button type="button" class="fluent-btn-accent" @onclick="Print">Печать</button>
+                <button type="button" class="fluent-btn-accent" @onclick="PrintPersonnel">Печать списка персонала</button>
+                <button type="button" class="fluent-btn-standard" @onclick="PrintTable">Печать таблицы</button>
             </div>
         }
     </div>

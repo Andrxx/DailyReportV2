@@ -1,4 +1,5 @@
 using DailyReport.Models;
+using DailyReport.Models.PersonelFolder;
 using DailyReport.Services.Reports;
 using DailyReport.Services.Reporting;
 using Microsoft.AspNetCore.Components;
@@ -16,6 +17,7 @@ namespace DailyReport.Components.Pages.Reports
     public partial class FireSumReport
     {
         [Inject] private FireReportService FireReportService { get; set; } = null!;
+        [Inject] private DutyNurseService DutyNurseService { get; set; } = null!;
         [Inject] private FireReportingCalendar FireCalendar { get; set; } = null!;
         [Inject] private ApplicationContext Context { get; set; } = null!;
         [Inject] private IJSRuntime JsRuntime { get; set; } = null!;
@@ -26,6 +28,13 @@ namespace DailyReport.Components.Pages.Reports
         /// <summary>Строки сводки: по одной на подразделение, в порядке ShowOrder.</summary>
         public List<FireRow> Rows { get; set; } = new();
 
+        /// <summary>
+        /// Дежурные медсёстры и контакты технических служб текущих суток, сгруппированные по
+        /// подразделениям. Выводятся ВСЕ подразделения пожарной сводки в порядке ShowOrder,
+        /// даже если контактов нет: пустое подразделение видно по подписи «Не назначены».
+        /// </summary>
+        public List<NurseGroup> NurseGroups { get; set; } = new();
+
         /// <summary>Ячейка сводки: «—», если сводка подразделения не подана.</summary>
         public static string Cell(int? value) => value?.ToString() ?? "—";
 
@@ -35,6 +44,22 @@ namespace DailyReport.Components.Pages.Reports
 
             Rows = DepartmentServices.GetFireReportDepartments(Context)
                 .Select(dep => new FireRow(dep, PickReport(dep)))
+                .ToList();
+
+            // Дежурные сёстры — по подразделениям в порядке ShowOrder. Показываем все
+            // подразделения (как в первой версии). К дежурным сёстрам отделения добавляются
+            // контакты технических служб из конфигурации (AddedNurses) с тем же department.
+            var nurses = DutyNurseService.GetForDay();
+            var added = DutyNurseService.GetConfiguredNurses();
+            NurseGroups = Rows
+                .Select(row => new NurseGroup(
+                    row.Department.Name ?? string.Empty,
+                    nurses.Where(n => n.department == row.Department.Id)
+                        .Select(n => new NurseEntry(n.name ?? string.Empty, n.Phone))
+                        .Concat(added.Where(a => a.Department == row.Department.Id)
+                            .Select(a => new NurseEntry(a.Name, a.Phone)))
+                        .ToList(),
+                    row.Department.Settings?.Type == DepartmentType.Utility))
                 .ToList();
         }
 
@@ -49,9 +74,16 @@ namespace DailyReport.Components.Pages.Reports
                 : FireReportService.GetByNumber(dep.Id, ReportDate);
         }
 
-        private async Task Print()
+        /// <summary>Печать только списка контактов (дежурные сёстры и тех.службы).</summary>
+        private async Task PrintPersonnel()
         {
-            await JsRuntime.InvokeVoidAsync("window.print");
+            await JsRuntime.InvokeVoidAsync("firePrint", "personnel");
+        }
+
+        /// <summary>Печать только таблицы итоговой сводки.</summary>
+        private async Task PrintTable()
+        {
+            await JsRuntime.InvokeVoidAsync("firePrint", "table");
         }
 
         /// <summary>Строка пожарной сводки. Числа null, пока сводка подразделения не подана.</summary>
@@ -95,5 +127,15 @@ namespace DailyReport.Components.Pages.Reports
             /// <summary>Время сохранения сводки.</summary>
             public string? Time => Report is null ? null : Report.Date.ToString("HH:mm dd.MM.yy");
         }
+
+        /// <summary>
+        /// Дежурные сёстры и контакты одного подразделения для списка сводки.
+        /// <paramref name="SkipInPrint"/> — техническое/хозяйственное подразделение (общежитие):
+        /// на экране блок остаётся, на бумаге не печатается.
+        /// </summary>
+        public sealed record NurseGroup(string DepartmentName, List<NurseEntry> Entries, bool SkipInPrint);
+
+        /// <summary>Один контакт в списке сводки: ФИО (или название службы) и телефон.</summary>
+        public sealed record NurseEntry(string Name, string? Phone);
     }
 }

@@ -54,6 +54,24 @@ namespace DailyReport.Services.Personnel
         }
 
         /// <summary>
+        /// Работник справочника по ФИО, без учёта регистра. Нужен для подстановки телефона
+        /// дежурной медсестре: в форме выбирается только ФИО, а контакт берётся отсюда.
+        /// Сравнение идёт в памяти: SQLite lower() не работает с кириллицей.
+        /// </summary>
+        public Personel? GetByName(string name)
+        {
+            var normalized = (name ?? string.Empty).Trim();
+            if (normalized.Length == 0)
+            {
+                return null;
+            }
+
+            var staff = _context.Personels.AsNoTracking().ToList();
+            return staff.FirstOrDefault(p =>
+                string.Equals((p.Name ?? string.Empty).Trim(), normalized, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
         /// Есть ли в справочнике человек с таким ФИО и такой должностью.
         /// Нужно для проверки дублей: два одинаковых ФИО в списке выбора дежурного
         /// неотличимы друг от друга, а отчёт потом не поймёт, кто это был.

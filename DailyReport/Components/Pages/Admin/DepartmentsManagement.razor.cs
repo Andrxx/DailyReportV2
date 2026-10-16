@@ -34,8 +34,20 @@ public partial class DepartmentsManagement
         Departments = query.OrderBy(d => d.ShowOrder).ToList();
     }
 
+    /// <summary>
+    /// Перед любой записью сбрасывает изменения трекера. Страница работает с КОПИЯМИ
+    /// (список загружен AsNoTracking), а в том же контуре от других страниц остаются
+    /// отслеживаемые экземпляры Department/DepartmentSettings — отделение через
+    /// DepartmentServices.GetById на /wards, /depreport и /firereport, Department
+    /// и его настройки через Add/Update. Без сброса Update/Remove падает с
+    /// «another instance with the same key value for {'DepartmentId'} is already tracked».
+    /// Незаписанных изменений на странице нет: каждая операция сразу заканчивается SaveChanges.
+    /// </summary>
+    private void ResetTracker() => Context.ChangeTracker.Clear();
+
     private void AddDepartment()
     {
+        ResetTracker();
         DepartmentServices.AddDepartment(NewDepartment, Context);
         NewDepartment = new Department();
         LoadDepartments();
@@ -43,6 +55,7 @@ public partial class DepartmentsManagement
 
     private void UpdateDepartment(Department dep)
     {
+        ResetTracker();
         DepartmentServices.UpdateDepartment(dep, Context);
         LoadDepartments();
     }
@@ -56,6 +69,7 @@ public partial class DepartmentsManagement
             return;
         }
 
+        ResetTracker();
         DepartmentServices.DeleteDepartment(dep.Id, Context);
         LoadDepartments();
     }
@@ -83,6 +97,7 @@ public partial class DepartmentsManagement
 
     private void SaveSettingsRow(DepartmentSettings settings)
     {
+        ResetTracker();
         settings.Department = null; // не захватывать граф отделения при Update
         Context.DepartmentSettings.Update(settings);
         Context.SaveChanges();

@@ -1,0 +1,22 @@
+@page "/places"
+@using DailyReport.Models
+
+<PageTitle>Места</PageTitle>
+
+<h1 class="page-title text-center">Места</h1>
+
+@if (Departments.Count == 0)
+{
+    <div class="mx-auto mt-4 max-w-xl rounded-card border border-stroke bg-neutral-layer-2 p-6 text-center text-foreground-3 shadow-card">
+        Отделений с палатами нет.
+    </div>
+}
+else
+{
+    <div class="flex flex-col items-center gap-2">
+        @foreach (var dep in Departments)
+        {
+            <a href="/places/@dep.Id" class="fluent-link">@dep.Name</a>
+        }
+    </div>
+}

@@ -5,6 +5,7 @@ using DailyReport.Services.Reports;
 using DailyReport.Services.Personnel;
 using DailyReport.Services.Reporting;
 using DailyReport.Services.Security;
+using DailyReport.Services.Wards;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,9 +19,12 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlite(
 builder.Services.AddScoped<DepReportService>();
 builder.Services.AddScoped<SummaryService>();
 builder.Services.AddScoped<FireReportService>();
+builder.Services.AddScoped<DutyNurseService>();
 builder.Services.AddScoped<PersonelService>();
 builder.Services.AddScoped<DutyService>();
 builder.Services.AddScoped<OutPatientService>();
+builder.Services.AddScoped<WardService>();
+builder.Services.AddScoped<PatientService>();
 
 // пароли и права доступа: секция "Security" конфигурации, переопределяется переменными окружения
 builder.Services.Configure<SecurityOptions>(builder.Configuration.GetSection("Security"));
