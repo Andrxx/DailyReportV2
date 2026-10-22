@@ -1564,3 +1564,376 @@ html.dark {
     outline: 2px dashed var(--color-accent, #0F6CBD);
     outline-offset: -2px;
 }
+
+/* Витрина палат «Места(Самсон)» (/samson/places, 20.10.2026).
+   Отдельные samson-* классы, чтобы новая и старая страницы развивались независимо.
+   Состояния: свободна — зелёная, частично занята — синяя, заполнена — оливковая
+   (норма, НЕ красная), переполнена — на 1–2 тона темнее заполненной (тёмно-оливковая,
+   НЕ красная), закрыта — жёлтая. */
+.samson-index {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.samson-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.samson-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border: 1px solid var(--color-stroke-divider, #D6D6D6);
+    border-radius: 9999px;
+    background: var(--color-fill-subtle, #F0F0F0);
+    color: var(--color-accent, #0F6CBD);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.samson-totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0 0.75rem;
+}
+
+.samson-total {
+    display: flex;
+    flex-direction: column;
+    min-width: 7.5rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-stroke, #E0E0E0);
+    border-radius: 0.5rem;
+    background: var(--color-neutral-layer-2, #FAFAFA);
+}
+
+.samson-total-label {
+    color: var(--color-foreground-3, #5C5C5C);
+    font-size: 0.6875rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+}
+
+.samson-total-value {
+    color: var(--color-foreground-1, #1A1A1A);
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.samson-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--color-foreground-2, #424242);
+    font-size: 0.75rem;
+}
+
+.samson-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+}
+
+.samson-legend-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    flex: none;
+    border-radius: 9999px;
+    background: var(--samson-edge, #999999);
+}
+
+.samson-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.samson-card {
+    overflow: hidden;
+    border: 1px solid var(--color-stroke, #E0E0E0);
+    border-left-width: 4px;
+    border-left-color: var(--samson-edge, transparent);
+    border-radius: 0.5rem;
+    background-color: var(--samson-bg, var(--color-neutral-layer-2, #FAFAFA));
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.samson-card--free {
+    --samson-bg: #BFF8BF;
+    --samson-edge: #12A512;
+}
+
+.samson-card--partial {
+    --samson-bg: #EAF2FB;
+    --samson-edge: #0F6CBD;
+}
+
+.samson-card--full {
+    --samson-bg: #ECEFE8;
+    --samson-edge: #6E7A5E;
+}
+
+.samson-card--overflow {
+    --samson-bg: #E2E6DD;
+    --samson-edge: #4F5945;
+}
+
+.samson-card--closed {
+    --samson-bg: #FFE6CC;
+    --samson-edge: #E57300;
+}
+
+.dark .samson-card--free {
+    --samson-bg: hsl(140, 45%, 17%);
+    --samson-edge: hsl(140, 70%, 58%);
+}
+
+.dark .samson-card--partial {
+    --samson-bg: hsl(210, 45%, 19%);
+    --samson-edge: hsl(210, 75%, 62%);
+}
+
+.dark .samson-card--full {
+    --samson-bg: #2C3027;
+    --samson-edge: #A1B18B;
+}
+
+.dark .samson-card--overflow {
+    --samson-bg: #22241E;
+    --samson-edge: #6F8156;
+}
+
+.dark .samson-card--closed {
+    --samson-bg: hsl(30, 40%, 17%);
+    --samson-edge: hsl(30, 95%, 58%);
+}
+
+.samson-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+}
+
+.samson-head-main {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.samson-ward {
+    color: var(--color-foreground-1, #1A1A1A);
+    font-weight: 600;
+}
+
+.samson-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--samson-edge, var(--color-foreground-3, #5C5C5C));
+    font-weight: 600;
+}
+
+.samson-lock {
+    width: 0.625rem;
+    height: 0.75rem;
+}
+
+.samson-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--color-foreground-2, #424242);
+    font-size: 0.8125rem;
+}
+
+.samson-count {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.samson-progress {
+    display: block;
+    width: 5rem;
+    height: 0.375rem;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-stroke, #E0E0E0);
+}
+
+.samson-progress > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--samson-edge, #999999);
+    transition: width 0.2s ease;
+}
+
+.samson-closed {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.samson-table-wrap {
+    overflow: visible;
+}
+
+.samson-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.875rem;
+}
+
+.samson-table th {
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--color-stroke, #E0E0E0);
+    color: var(--color-foreground-2, #424242);
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.samson-table td {
+    padding: 0.3rem 0.75rem;
+    border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+    color: var(--color-foreground-1, #1A1A1A);
+    vertical-align: top;
+}
+
+.samson-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.samson-num {
+    width: 3rem;
+    color: var(--color-foreground-3, #5C5C5C);
+}
+
+.samson-col-age {
+    width: 5.5rem;
+}
+
+.samson-col-sex {
+    width: 4rem;
+}
+
+.samson-col-date {
+    width: 10.5rem;
+}
+
+.samson-col-flags {
+    width: 18rem;
+}
+
+.samson-name {
+    font-weight: 500;
+}
+
+.samson-date {
+    white-space: nowrap;
+}
+
+.samson-flags {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+.samson-flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    cursor: pointer;
+}
+
+.samson-free-row td {
+    color: var(--color-foreground-3, #5C5C5C);
+}
+
+.samson-free {
+    font-style: italic;
+}
+
+.samson-empty {
+    padding: 0.75rem 1rem;
+    color: var(--color-foreground-3, #5C5C5C);
+    font-size: 0.875rem;
+}
+
+/* Адаптив: на узком экране строка таблицы превращается в карточку пациента
+   (подписи колонок берутся из data-label). */
+@media (max-width: 900px) {
+    .samson-table thead {
+        display: none;
+    }
+
+    .samson-table,
+    .samson-table tbody,
+    .samson-table tr,
+    .samson-table td {
+        display: block;
+        width: auto;
+    }
+
+    .samson-table tr {
+        padding: 0.4rem 0.75rem;
+        border-bottom: 1px solid var(--color-stroke-divider, #D6D6D6);
+    }
+
+    .samson-table tbody tr:last-child {
+        border-bottom: 0;
+    }
+
+    .samson-table td {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.125rem 0;
+        border: 0;
+    }
+
+    .samson-table td::before {
+        content: attr(data-label);
+        color: var(--color-foreground-3, #5C5C5C);
+        font-weight: 500;
+    }
+
+    .samson-free-row .samson-num {
+        display: none;
+    }
+
+    .samson-free-row td[colspan] {
+        display: block;
+    }
+
+    .samson-free-row td[colspan]::before {
+        content: none;
+    }
+
+    .samson-flags {
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        white-space: normal;
+    }
+}

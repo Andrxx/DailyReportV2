@@ -1,4 +1,5 @@
 @* Верхняя панель — общий компонент. Собственный набор стилей: Tailwind + токены Windows/Fluent 2. *@
+@using DailyReport.Services.Places
 @inject IJSRuntime JS
 
 <nav class="flex h-14 items-center justify-between gap-4 px-6">
@@ -12,9 +13,13 @@
                      class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">
                 Пожарная сводка
             </NavLink>
-            <NavLink href="/places" ActiveClass="bg-fill-subtle text-accent"
+            <NavLink href="@WardRoutes.LegacyIndex" ActiveClass="bg-fill-subtle text-accent"
                      class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">
                 Места
+            </NavLink>
+            <NavLink href="@WardRoutes.SamsonIndex" ActiveClass="bg-fill-subtle text-accent"
+                     class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">
+                Места(Самсон)
             </NavLink>
             <NavLink href="/wards" ActiveClass="bg-fill-subtle text-accent"
                      class="rounded-control px-3 py-1.5 text-sm text-foreground-2 transition-colors hover:bg-fill-hover hover:text-foreground-1 active:bg-fill-subtle focus-fluent">

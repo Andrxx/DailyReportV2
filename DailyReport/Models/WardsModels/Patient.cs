@@ -13,6 +13,7 @@ namespace DailyReport.Models.WardsModels
         public int? AgeMonts { get; set; }
         public string? sAge { get; set; }
         public string Diagnos { get; set; }
+        public string? MkbCode { get; set; }
         public DateTime HospitalisationDate { get; set; }
         public bool HasRash { get; set; }
         public bool IsUntochable { get; set; }

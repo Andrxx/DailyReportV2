@@ -379,3 +379,6 @@ departments.db
 
 # Work rules
 AGENTS.md
+
+# Samson MIS DB schema extract (reference only, not needed in repo)
+/docs/samson/

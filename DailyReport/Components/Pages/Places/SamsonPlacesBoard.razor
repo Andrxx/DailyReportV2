@@ -1,0 +1,166 @@
+@page "/samson/places/{DepartmentId:int}"
+@using DailyReport.Models
+@using DailyReport.Models.WardsModels
+@using DailyReport.Services.Places
+
+<PageTitle>Места(Самсон)</PageTitle>
+
+<div class="max-w-[108rem] px-4 py-6">
+    <p class="mb-2 text-sm"><a href="@WardRoutes.SamsonIndex" class="fluent-link">&larr; Места(Самсон)</a></p>
+
+    @if (Department is null)
+    {
+        <h1 class="page-title">Отделение не найдено</h1>
+        <div class="mt-4 rounded-card border border-stroke bg-neutral-layer-2 p-6 text-center text-foreground-3 shadow-card">
+            Отделения с идентификатором @DepartmentId нет.
+        </div>
+    }
+    else
+    {
+        <div class="samson-title">
+            <h1 class="page-title">Размещение: @Department.Name</h1>
+            <span class="samson-badge">Данные из МИС</span>
+        </div>
+
+        @if (!IsWardDepartment)
+        {
+            <div class="mt-4 rounded-card border border-stroke bg-neutral-layer-2 p-6 text-center text-foreground-3 shadow-card">
+                Отделение не участвует в размещении по палатам. Включите для него флаг «Палаты»
+                на <a href="/admin/departments" class="fluent-link">странице отделений</a>.
+            </div>
+        }
+        else
+        {
+            @if (!string.IsNullOrEmpty(Error))
+            {
+                <div class="mb-4 rounded-card border border-stroke bg-neutral-layer-2 p-3 text-sm text-foreground-1 shadow-card">
+                    @Error
+                </div>
+            }
+
+            @if (Cards.Count == 0)
+            {
+                <div class="mt-4 rounded-card border border-stroke bg-neutral-layer-2 p-6 text-center text-foreground-3 shadow-card">
+                    Палат пока нет. Добавьте палаты в
+                    <a href="/wards/@DepartmentId" class="fluent-link">администрировании палат</a>.
+                </div>
+            }
+            else
+            {
+                <div class="samson-totals">
+                    <div class="samson-total"><span class="samson-total-label">Мест</span><span class="samson-total-value">@BedsTotal</span></div>
+                    <div class="samson-total"><span class="samson-total-label">Занято</span><span class="samson-total-value">@OccupiedTotal</span></div>
+                    <div class="samson-total"><span class="samson-total-label">Свободно</span><span class="samson-total-value">@FreeTotal</span></div>
+                    <div class="samson-total"><span class="samson-total-label">Закрыто палат</span><span class="samson-total-value">@ClosedWards</span></div>
+                </div>
+
+                <div class="samson-legend">
+                    <span class="samson-legend-item"><span class="samson-legend-dot samson-card--free"></span>свободна</span>
+                    <span class="samson-legend-item"><span class="samson-legend-dot samson-card--partial"></span>частично занята</span>
+                    <span class="samson-legend-item"><span class="samson-legend-dot samson-card--full"></span>заполнена</span>
+                    <span class="samson-legend-item"><span class="samson-legend-dot samson-card--overflow"></span>переполнена</span>
+                    <span class="samson-legend-item"><span class="samson-legend-dot samson-card--closed"></span>закрыта</span>
+                </div>
+
+                <div class="samson-cards">
+                    @foreach (var card in Cards)
+                    {
+                        <section class="samson-card @card.StatusClass" data-drop-ward="@card.Ward.Number">
+                            <header class="samson-head">
+                                <div class="samson-head-main">
+                                    <h2 class="samson-ward">Палата @card.Ward.Number</h2>
+                                    <span class="samson-status">
+                                        @if (card.Status == SamsonPlaceStatus.Closed)
+                                        {
+                                            <svg class="samson-lock" viewBox="0 0 10 12" aria-hidden="true">
+                                                <path d="M2 5V3.5a3 3 0 0 1 6 0V5" fill="none" stroke="currentColor" stroke-width="1.4" />
+                                                <rect x="1" y="5" width="8" height="6" rx="1.2" fill="currentColor" />
+                                            </svg>
+                                        }
+                                        @card.StatusText
+                                    </span>
+                                </div>
+
+                                <div class="samson-meta">
+                                    <span class="samson-count">@card.Patients.Count / @card.Ward.Capacity</span>
+                                    <span class="samson-progress" role="img" aria-label="Занято @card.Percent%">
+                                        <span style="width: @(card.Percent)%"></span>
+                                    </span>
+                                    <span class="samson-free-count">свободно: @card.FreeSlots</span>
+                                    <label class="samson-closed">
+                                        <input type="checkbox" class="place-switch" checked="@(!card.Ward.CanPut)"
+                                               @onchange="_ => ToggleClosed(card)" />
+                                        <span>закрыта</span>
+                                    </label>
+                                </div>
+                            </header>
+
+                            @if (card.RowCount == 0)
+                            {
+                                <div class="samson-empty">Мест не выделено.</div>
+                            }
+                            else
+                            {
+                                <div class="samson-table-wrap">
+                                    <table class="samson-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="samson-num">№</th>
+                                                <th>ФИО</th>
+                                                <th class="samson-col-age">Возраст</th>
+                                                <th class="samson-col-sex">Пол</th>
+                                                <th>Диагноз</th>
+                                                <th class="samson-col-date">Дата госпитализации</th>
+                                                <th class="samson-col-flags">Признаки</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (var i = 0; i < card.RowCount; i++)
+                                            {
+                                                var patient = card.PatientAt(i);
+
+                                                if (patient is null)
+                                                {
+                                                    <tr class="samson-free-row">
+                                                        <td class="samson-num" data-label="№">@(i + 1)</td>
+                                                        <td colspan="6" class="samson-free" data-label="Место">свободно</td>
+                                                    </tr>
+                                                }
+                                                else
+                                                {
+                                                    <tr class="samson-row" data-patient-row="@patient.Id">
+                                                        <td class="samson-num" data-label="№">
+                                                            <div class="place-drag-handle samson-drag" draggable="true" data-patient-id="@patient.Id"
+                                                                 title="Перетащите, чтобы перенести пациента в другую палату">
+                                                                <span>@(i + 1)</span>
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="ФИО" class="samson-name">@patient.Name</td>
+                                                        <td data-label="Возраст">@patient.sAge</td>
+                                                        <td data-label="Пол">@patient.Male</td>
+                                                        <td data-label="Диагноз">@(string.IsNullOrWhiteSpace(patient.MkbCode) ? patient.Diagnos : $"{patient.MkbCode} {patient.Diagnos}")</td>
+                                                        <td data-label="Дата госпитализации" class="samson-date">@patient.HospitalisationDate.ToString("dd.MM.yyyy")</td>
+                                                        <td data-label="Признаки">
+                                                            <div class="samson-flags">
+                                                                <label class="samson-flag"><input type="checkbox" class="samson-flag-rash"
+                                                                        checked="@patient.HasRash" @onchange="e => SetFlag(patient.Id, PatientFlag.Rash, e)" /> сыпь</label>
+                                                                <label class="samson-flag"><input type="checkbox" class="samson-flag-care"
+                                                                        checked="@patient.HasCareRisk" @onchange="e => SetFlag(patient.Id, PatientFlag.CareRisk, e)" /> риск ВБИ</label>
+                                                                <label class="samson-flag"><input type="checkbox" class="samson-flag-untouchable"
+                                                                        checked="@patient.IsUntochable" @onchange="e => SetFlag(patient.Id, PatientFlag.Untouchable, e)" /> от главного</label>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                        </section>
+                    }
+                </div>
+            }
+        }
+    }
+</div>
