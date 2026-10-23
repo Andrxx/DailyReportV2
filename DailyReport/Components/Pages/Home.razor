@@ -1,5 +1,6 @@
 @page "/"
 @using DailyReport.Models
+@using DailyReport.Services.Places
 
 <PageTitle>Сводка отделений</PageTitle>
 
@@ -10,6 +11,7 @@
     {
         <a href="/depreport/@dep.Id" class="fluent-link">@dep.Name</a>
     }
+    <a href="@WardRoutes.SamsonDashboard" class="fluent-link">Вся больница</a>
 </div>
 
 <div class="h-6" aria-hidden="true"></div>

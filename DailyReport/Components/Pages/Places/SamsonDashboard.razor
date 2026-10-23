@@ -1,0 +1,106 @@
+@page "/samson/dashboard"
+@using DailyReport.Services.Places
+
+<PageTitle>Палаты — все отделения</PageTitle>
+
+<div class="samson-dash">
+    <header class="samson-dash-head">
+        <div class="samson-dash-headline">
+            <h1 class="samson-dash-title">Палаты — все отделения</h1>
+            <span class="samson-dash-date">@ReportDate.ToString("dd.MM.yyyy")</span>
+        </div>
+
+        <div class="samson-dash-kpis">
+            <span class="samson-dash-kpi" data-kpi="beds"><b>@Board.BedsTotal</b> мест</span>
+            <span class="samson-dash-kpi" data-kpi="occupied"><b>@Board.OccupiedTotal</b> занято</span>
+            <span class="samson-dash-kpi" data-kpi="free"><b>@Board.FreeTotal</b> свободно</span>
+            <span class="samson-dash-kpi" data-kpi="closed"><b>@Board.ClosedTotal</b> закрыто</span>
+            <span class="samson-dash-kpi" data-kpi="overflow"><b>@Board.OverflowTotal</b> переполнено</span>
+        </div>
+
+        <div class="samson-dash-legend">
+            <span class="samson-dash-legend-item"><span class="samson-dash-dot samson-card--free"></span>свободна</span>
+            <span class="samson-dash-legend-item"><span class="samson-dash-dot samson-card--partial"></span>частично занята</span>
+            <span class="samson-dash-legend-item"><span class="samson-dash-dot samson-card--full"></span>заполнена</span>
+            <span class="samson-dash-legend-item"><span class="samson-dash-dot samson-card--overflow"></span>переполнена</span>
+            <span class="samson-dash-legend-item"><span class="samson-dash-dot samson-card--closed"></span>закрыта</span>
+        </div>
+    </header>
+
+    @if (Board.Departments.Count == 0)
+    {
+        <div class="samson-dash-empty-state">Отделений с палатами нет.</div>
+    }
+    else
+    {
+        <div class="samson-dash-columns">
+            @foreach (var department in Board.Departments)
+            {
+                <section class="samson-dash-dep">
+                    <div class="samson-dash-dep-head">
+                        <a class="samson-dash-dep-name" href="@WardRoutes.SamsonDepartment(department.Id)">@department.Name</a>
+                        <div class="samson-dash-dep-stats">
+                            <span class="samson-dash-dep-free">свободно @department.Free</span>
+                            <span class="samson-dash-dep-count">занято @department.Occupied</span>
+                            @if (department.Closed > 0)
+                            {
+                                <span class="samson-dash-dep-closed">закрыто @department.Closed</span>
+                            }
+                            @if (department.Overflow > 0)
+                            {
+                                <span class="samson-dash-dep-overflow">переполнено @department.Overflow</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="samson-dash-wards">
+                        @foreach (var ward in department.Wards)
+                        {
+                            <div class="samson-dash-ward @ward.StatusClass">
+                                <div class="samson-dash-ward-head">
+                                    <a class="samson-dash-ward-name" href="@WardRoutes.SamsonDepartment(department.Id)"
+                                       title="Открыть отделение @department.Name">Палата @ward.Number</a>
+                                    <span class="samson-dash-ward-count">@ward.Occupied/@ward.Capacity</span>
+                                    <span class="samson-dash-status-dot" title="@ward.StatusText" aria-label="@ward.StatusText"></span>
+                                    @if (ward.FreeSlots > 0)
+                                    {
+                                        <span class="samson-dash-ward-free">св. @ward.FreeSlots</span>
+                                    }
+                                    @if (!ward.CanPut)
+                                    {
+                                        <svg class="samson-dash-lock" viewBox="0 0 10 12" aria-hidden="true">
+                                            <path d="M2 5V3.5a3 3 0 0 1 6 0V5" fill="none" stroke="currentColor" stroke-width="1.4" />
+                                            <rect x="1" y="5" width="8" height="6" rx="1.2" fill="currentColor" />
+                                        </svg>
+                                    }
+                                </div>
+
+                                <div class="samson-dash-patients">
+                                    @foreach (var patient in ward.Patients)
+                                    {
+                                        <div class="samson-dash-patient" title="@patient.MkbCode">
+                                            <span class="samson-dash-sex">@patient.Male</span>
+                                            <span class="samson-dash-age">@patient.AgeText</span>
+                                            <span class="samson-dash-mkb">@(string.IsNullOrWhiteSpace(patient.MkbCode) ? "—" : patient.MkbCode)</span>
+                                            <span class="samson-dash-pdate">@patient.HospitalisationDate.ToString("dd.MM")</span>
+                                        </div>
+                                    }
+
+                                    @for (var i = 0; i < Math.Min(4, ward.FreeSlots); i++)
+                                    {
+                                        <div class="samson-dash-slot"></div>
+                                    }
+
+                                    @if (ward.FreeSlots > 4)
+                                    {
+                                        <div class="samson-dash-more">+@(ward.FreeSlots - 4) свободно</div>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </section>
+            }
+        </div>
+    }
+</div>

@@ -14,6 +14,9 @@ public static class WardRoutes
     /// <summary>Отделение новой витрины (шаблон для <see cref="SamsonDepartment"/>).</summary>
     public const string SamsonDepartmentTemplate = "/samson/places/{0}";
 
+    /// <summary>Общая сводка палат по всем отделениям.</summary>
+    public const string SamsonDashboard = "/samson/dashboard";
+
     /// <summary>Индекс старой страницы «Места» (аварийный режим).</summary>
     public const string LegacyIndex = "/places";
 

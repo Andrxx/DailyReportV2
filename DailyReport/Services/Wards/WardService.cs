@@ -1,6 +1,7 @@
 using System.Globalization;
 using DailyReport.Models;
 using DailyReport.Models.WardsModels;
+using DailyReport.Services.Places;
 using Microsoft.EntityFrameworkCore;
 
 namespace DailyReport.Services.Wards
@@ -53,6 +54,74 @@ namespace DailyReport.Services.Wards
             wards.Sort(WardOrder);
             return wards;
         }
+
+        public WardBoardData GetWardBoard()
+        {
+            var departments = GetWardDepartments();
+            if (departments.Count == 0)
+            {
+                return new WardBoardData();
+            }
+
+            var departmentIds = departments.Select(d => d.Id).ToList();
+
+            var wards = _context.Wards
+                .AsNoTracking()
+                .Where(w => departmentIds.Contains(w.Department))
+                .ToList();
+
+            var patients = _context.Patients
+                .AsNoTracking()
+                .Where(p => departmentIds.Contains(p.Department))
+                .OrderBy(p => p.Id)
+                .ToList();
+
+            var patientsByWard = patients
+                .GroupBy(p => WardKey(p.Department, p.WardNumber))
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            var board = new WardBoardData();
+
+            foreach (var department in departments)
+            {
+                var departmentWards = wards
+                    .Where(w => w.Department == department.Id)
+                    .ToList();
+
+                departmentWards.Sort(WardOrder);
+
+                board.Departments.Add(new WardBoardDepartment
+                {
+                    Id = department.Id,
+                    Name = department.Name ?? string.Empty,
+                    Wards = departmentWards.Select(ward =>
+                    {
+                        patientsByWard.TryGetValue(WardKey(ward.Department, ward.Number), out var wardPatients);
+
+                        return new WardBoardWard
+                        {
+                            Number = ward.Number,
+                            Capacity = ward.Capacity,
+                            CanPut = ward.CanPut,
+                            Patients = (wardPatients ?? new List<Patient>())
+                                .Select(patient => new WardBoardPatient
+                                {
+                                    Male = patient.Male,
+                                    AgeText = PatientAge.Format(patient),
+                                    MkbCode = patient.MkbCode ?? string.Empty,
+                                    HospitalisationDate = patient.HospitalisationDate
+                                })
+                                .ToList()
+                        };
+                    }).ToList()
+                });
+            }
+
+            return board;
+        }
+
+        private static string WardKey(int departmentId, string? wardNumber) =>
+            $"{departmentId}\u001f{(wardNumber ?? string.Empty).Trim().ToUpperInvariant()}";
 
         public Ward? GetWard(int id)
         {
