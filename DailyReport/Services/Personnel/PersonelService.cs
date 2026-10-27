@@ -53,6 +53,16 @@ namespace DailyReport.Services.Personnel
                 .ToList();
         }
 
+        public List<Personel> GetRentgenologists()
+        {
+            return _context.Personels
+                .AsNoTracking()
+                .Where(p => p.PersType == "Врач рентгенолог"
+                            || (p.PersType == "Врач" && p.Department == "Рентгенологическое"))
+                .OrderBy(p => p.Name)
+                .ToList();
+        }
+
         /// <summary>
         /// Работник справочника по ФИО, без учёта регистра. Нужен для подстановки телефона
         /// дежурной медсестре: в форме выбирается только ФИО, а контакт берётся отсюда.

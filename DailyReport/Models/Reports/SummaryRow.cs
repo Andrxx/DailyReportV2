@@ -6,6 +6,7 @@ namespace DailyReport.Models.Reports
     public enum SummarySection
     {
         Movement,
+        Transportability,
         Oxygen,
         SocialStatus,
         Nozology,

@@ -12,9 +12,15 @@
     </p>
 
     <div class="report-card sum-card">
-        <div class="report-head report-no-print">
-            <p class="report-eyebrow">Итоговая сводка</p>
-            <h1 class="report-title">Сводка по больнице</h1>
+        <div class="report-head report-no-print flex items-center justify-between gap-4">
+            <div>
+                <p class="report-eyebrow">Итоговая сводка</p>
+                <h1 class="report-title">Сводка по больнице</h1>
+            </div>
+            <button id="chartsButton" data-testid="charts-button" type="button"
+                    class="fluent-btn-standard"
+                    style="visibility: hidden; flex: none;"
+                    @onclick="OpenCharts">Графики</button>
         </div>
 
         @if (Data is null)

@@ -463,10 +463,10 @@ namespace DailyReport.Components.Pages.Reports
                 PickDate = requested;
             }
 
-            // Списки дежурных берём из справочника персонала через DutyService: какая
+            // Списки дежурных берём из справочника персонала: какая
             // должность попадает в какой блок — правило службы, а не страницы.
             Doctors = await Task.Run(() => PersonelService.GetByPersType(DutyService.GetPersTypeFor(DutyType.Department)));
-            Rentgenologists = await Task.Run(() => PersonelService.GetByPersType(DutyService.GetPersTypeFor(DutyType.Rentgenology)));
+            Rentgenologists = await Task.Run(() => PersonelService.GetRentgenologists());
 
             await LoadAsync();
         }
@@ -494,13 +494,7 @@ namespace DailyReport.Components.Pages.Reports
 
         private async Task LoadAsync()
         {
-            var config = new Dictionary<SummaryConfigGroup, SummaryRowConfig>
-            {
-                [SummaryConfigGroup.Oxygen] = ReadConfigGroup("Oxygen"),
-                [SummaryConfigGroup.Social] = ReadConfigGroup("Social"),
-                [SummaryConfigGroup.Nozology] = ReadConfigGroup("Nozology"),
-                [SummaryConfigGroup.Care] = ReadConfigGroup("Care")
-            };
+            var config = SummaryConfigFactory.Create(AppConfig);
 
             var day = ReportDate;
             Data = await Task.Run(() => SummaryService.Build(day, config));
@@ -648,13 +642,6 @@ namespace DailyReport.Components.Pages.Reports
         /// <summary>
         /// Подпись и видимость опциональной строки из секции конфигурации.
         /// </summary>
-        private SummaryRowConfig ReadConfigGroup(string group)
-        {
-            var name = AppConfig[$"{group}:Name"];
-            var visible = bool.TryParse(AppConfig[$"{group}:Visible"], out var result) && result;
-            return new SummaryRowConfig(name ?? string.Empty, visible);
-        }
-
         /// <summary>
         /// Открытие сводки за дату, выбранную в календаре. Пароля нет: сводка
         /// общедоступна, в отличие от формы отделения.
@@ -694,6 +681,11 @@ namespace DailyReport.Components.Pages.Reports
             OffsetError = null;
 
             await LoadAsync();
+        }
+
+        private void OpenCharts()
+        {
+            Nav.NavigateTo($"/charts?date={ReportDate:yyyy-MM-dd}");
         }
 
         private async Task Print()

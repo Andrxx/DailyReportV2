@@ -41,6 +41,15 @@ namespace DailyReport.Models.Reports
         public int diedChildrens { get; set; }
         public int present { get; set; }
         public int presentChildrens { get; set; }
+
+        //транспортабельность
+        public int ambulatory { get; set; }
+        public int ambulatoryChildrens { get; set; }
+        public int transportable { get; set; }
+        public int transportableChildrens { get; set; }
+        public int nonTransportable { get; set; }
+        public int nonTransportableChildrens { get; set; }
+
         public int attachedToORIT { get; set; }
         public int attachedToORITCildrens { get; set; }
         public int oIVL { get; set; }

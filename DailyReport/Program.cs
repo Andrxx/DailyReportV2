@@ -18,6 +18,7 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlite(
 
 builder.Services.AddScoped<DepReportService>();
 builder.Services.AddScoped<SummaryService>();
+builder.Services.AddScoped<AdmissionStatsService>();
 builder.Services.AddScoped<FireReportService>();
 builder.Services.AddScoped<DutyNurseService>();
 builder.Services.AddScoped<PersonelService>();

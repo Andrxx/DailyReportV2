@@ -24,7 +24,7 @@ namespace DailyReport.Services.Reporting
 
             var value = options.Value;
             DayStart = ParseTime(value.DayStart, new TimeOnly(6, 0), nameof(ReportingOptions.DayStart));
-            _dayCutoff = ParseTime(value.DayCutoff, new TimeOnly(7, 30), nameof(ReportingOptions.DayCutoff));
+            _dayCutoff = ParseTime(value.DayCutoff, new TimeOnly(7, 0), nameof(ReportingOptions.DayCutoff));
             _timeZone = ResolveTimeZone(value.TimeZone);
         }
 

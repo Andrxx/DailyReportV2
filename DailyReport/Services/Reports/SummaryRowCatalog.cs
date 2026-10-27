@@ -11,6 +11,7 @@ namespace DailyReport.Services.Reports
         private static readonly SummarySection[] sectionOrder =
         {
             SummarySection.Movement,
+            SummarySection.Transportability,
             SummarySection.Oxygen,
             SummarySection.SocialStatus,
             SummarySection.Nozology,
@@ -22,6 +23,7 @@ namespace DailyReport.Services.Reports
         public static string SectionTitle(SummarySection section) => section switch
         {
             SummarySection.Movement => "Движение",
+            SummarySection.Transportability => "Транспортабельность",
             SummarySection.Oxygen => "Кислород",
             SummarySection.SocialStatus => "Социальный статус",
             SummarySection.Nozology => "Нозологии",
@@ -48,6 +50,14 @@ namespace DailyReport.Services.Reports
                     Adults = r => r.died, Children = r => r.diedChildrens },
             new() { Label = "Состоит в отделении", Section = SummarySection.Movement, IsSubtotal = true,
                     Adults = r => r.present, Children = r => r.presentChildrens },
+
+            // --- транспортабельность ---
+            new() { Label = "Амбулаторные", Section = SummarySection.Transportability,
+                    Adults = r => r.ambulatory, Children = r => r.ambulatoryChildrens },
+            new() { Label = "Транспортабельные", Section = SummarySection.Transportability,
+                    Adults = r => r.transportable, Children = r => r.transportableChildrens },
+            new() { Label = "Не транспортабельные", Section = SummarySection.Transportability,
+                    Adults = r => r.nonTransportable, Children = r => r.nonTransportableChildrens },
 
             // --- кислород ---
             new() { Label = "ИВЛ", Section = SummarySection.Oxygen,
@@ -114,6 +124,12 @@ namespace DailyReport.Services.Reports
                     Adults = r => r.optionalNozology, Children = r => r.optionalNozologyChildren },
             new() { Label = "Прочие", Section = SummarySection.Nozology,
                     Adults = r => r.other, Children = r => r.otherChildrens },
+            // «Итого» по разделу — сумма СОБСТВЕННО нозологий (CountDiseases в DepReport,
+            // как в V1), а не «Состоит в отделении» и не нозологии с уходом: лица по уходу
+            // к нозологиям не относятся и попадают только в строку «Количество человек
+            // в круглосуточном стационаре» ниже.
+            new() { Label = "Итого", Section = SummarySection.Nozology, IsSubtotal = true,
+                    Adults = r => r.CountDiseases(), Children = r => r.CountDiseasesChildren() },
 
             // --- уход ---
             new() { Label = "Лица по уходу", Section = SummarySection.Care, IsMerged = true,

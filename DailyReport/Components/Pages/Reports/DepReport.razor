@@ -138,6 +138,24 @@
                             <td class="report-cell-num"><input type="number" min="0" class="report-input" readonly value="@PresentChildrensComputed" /></td>
                         </tr>
 
+                        @* транспортабельность *@
+                        <tr class="report-section"><th colspan="3">Транспортабельность</th></tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Амбулаторные</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.ambulatory" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.ambulatoryChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Транспортабельные</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.transportable" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.transportableChildrens" @bind:event="oninput" /></td>
+                        </tr>
+                        <tr class="report-row">
+                            <td class="report-cell-label">Не транспортабельные</td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.nonTransportable" @bind:event="oninput" /></td>
+                            <td class="report-cell-num"><input type="number" min="0" class="report-input" @bind="Report.nonTransportableChildrens" @bind:event="oninput" /></td>
+                        </tr>
+
                         @* кислород *@
                         <tr class="report-section"><th colspan="3">Кислород</th></tr>
                         <tr class="report-row">

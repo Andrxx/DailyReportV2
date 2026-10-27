@@ -14,7 +14,7 @@ namespace DailyReport.Services.Reporting
         /// Граница, начиная с которой открываются новые отчётные сутки.
         /// Единственное значение, участвующее в расчёте.
         /// </summary>
-        public string DayCutoff { get; set; } = "07:30";
+        public string DayCutoff { get; set; } = "07:00";
 
         /// <summary>
         /// Часовой пояс, в котором заданы границы суток. На сервере может быть UTC.

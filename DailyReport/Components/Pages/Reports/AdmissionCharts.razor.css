@@ -1,0 +1,105 @@
+.charts-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 3rem;
+}
+
+.charts-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.charts-eyebrow {
+    margin: 0 0 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-foreground-3, #797979);
+}
+
+.charts-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+.charts-date {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: var(--color-foreground-2, #424242);
+}
+
+.charts-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.charts-card {
+    width: 100%;
+    max-width: 1000px;
+    padding: 1rem 1.25rem 1.25rem;
+    border: 1px solid var(--color-stroke, #E0E0E0);
+    border-radius: var(--radius-card, 8px);
+    background: var(--color-neutral-layer-2, #FFFFFF);
+    box-shadow: 0 0 2px rgb(0 0 0 / .12), 0 2px 4px rgb(0 0 0 / .14);
+}
+
+.charts-card--small {
+    max-width: 400px;
+}
+
+.charts-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 400px));
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.charts-card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.charts-card-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-foreground-1, #1A1A1A);
+}
+
+.charts-card-note {
+    font-size: 0.75rem;
+    color: var(--color-foreground-3, #797979);
+}
+
+.charts-state {
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: var(--color-foreground-2, #424242);
+}
+
+.charts-state--error {
+    color: #A8001E;
+}
+
+@media (max-width: 900px) {
+    .charts-row {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .charts-card--small {
+        max-width: none;
+    }
+}

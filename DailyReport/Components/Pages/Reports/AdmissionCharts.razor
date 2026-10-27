@@ -1,0 +1,85 @@
+@page "/charts"
+@using DailyReport.Services.Reports
+@using DailyReport.Services.Reporting
+
+<PageTitle>Графики</PageTitle>
+
+<div class="charts-page">
+    <header class="charts-head">
+        <div>
+            <p class="charts-eyebrow">Аналитика</p>
+            <h1 class="charts-title">Графики</h1>
+            <p class="charts-date">Отчётные сутки: @AsOf.ToString("dd.MM.yyyy")</p>
+        </div>
+        <a class="fluent-link" href="/finalreport?date=@AsOf.ToString("yyyy-MM-dd")">К сводке</a>
+    </header>
+
+    @if (!_ready || _loading)
+    {
+        <div class="charts-card charts-state">Загрузка...</div>
+    }
+    else if (_error is not null)
+    {
+        <div class="charts-card charts-state charts-state--error">@_error</div>
+    }
+    else if (Stats is null)
+    {
+        <div class="charts-card charts-state">Нет данных.</div>
+    }
+    else
+    {
+        <div class="charts-grid">
+            <section class="charts-card charts-card--wide">
+                <div class="charts-card-head">
+                    <h2 class="charts-card-title">Поступления за месяц</h2>
+                    <span class="charts-card-note">@Stats.Month.FirstOrDefault()?.Label — @Stats.Month.LastOrDefault()?.Label</span>
+                </div>
+                <ApexChart TItem="AdmissionDayPoint" Options="_monthOptions" Height="550" @key="MonthKey">
+                    <ApexPointSeries TItem="AdmissionDayPoint"
+                                     Items="Stats.Month"
+                                     Name="Поступило"
+                                     SeriesType="SeriesType.Line"
+                                     XValue="d => d.Label"
+                                     YValue="d => d.Value.HasValue ? (decimal)d.Value.Value : null" />
+                </ApexChart>
+            </section>
+
+            <div class="charts-row">
+                <section class="charts-card charts-card--small">
+                    <div class="charts-card-head">
+                        <h2 class="charts-card-title">Последние 7 дней</h2>
+                    </div>
+                    <ApexChart TItem="AdmissionDayPoint" Options="_weekOptions" Height="400" @key="WeekKey">
+                        <ApexPointSeries TItem="AdmissionDayPoint"
+                                         Items="Stats.Week"
+                                         Name="Поступило"
+                                         SeriesType="SeriesType.Bar"
+                                         XValue="d => d.Label"
+                                         YValue="d => (decimal)(d.Value ?? 0)" />
+                    </ApexChart>
+                </section>
+
+                <section class="charts-card charts-card--small">
+                    <div class="charts-card-head">
+                        <h2 class="charts-card-title">Нозологии</h2>
+                    </div>
+                    @if (Stats.Nozologies.Count == 0)
+                    {
+                        <div class="charts-state">Нет данных за @Stats.AsOf.ToString("dd.MM.yyyy").</div>
+                    }
+                    else
+                    {
+                        <ApexChart TItem="NozologySlice" Options="_nozologyOptions" Height="400" @key="PieKey">
+                            <ApexPointSeries TItem="NozologySlice"
+                                             Items="Stats.Nozologies"
+                                             Name="Пациенты"
+                                             SeriesType="SeriesType.Pie"
+                                             XValue="s => s.Label"
+                                             YValue="s => s.Value" />
+                        </ApexChart>
+                    }
+                </section>
+            </div>
+        </div>
+    }
+</div>

@@ -242,6 +242,12 @@ namespace DailyReport.Migrations
                     b.Property<int>("U072Childrens")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ambulatory")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ambulatoryChildrens")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("attachedToORIT")
                         .HasColumnType("INTEGER");
 
@@ -327,6 +333,12 @@ namespace DailyReport.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("movedOutDepChildrens")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("nonTransportable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("nonTransportableChildrens")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("oBrease")
@@ -456,6 +468,12 @@ namespace DailyReport.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("sepsisChildren")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("transportable")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("transportableChildrens")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
