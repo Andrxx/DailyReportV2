@@ -57,6 +57,12 @@ namespace DailyReport.Migrations
                     b.Property<int>("DepartmentId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<bool>("AutoFillFromPrevious")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AutoFillSource")
+                        .HasColumnType("INTEGER");
+
                     b.Property<bool>("CountSpotsInFinalReport")
                         .HasColumnType("INTEGER");
 

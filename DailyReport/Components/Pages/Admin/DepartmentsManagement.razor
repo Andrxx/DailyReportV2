@@ -112,6 +112,8 @@
                             <th class="px-3 py-2 font-medium">Пожарная сводка</th>
                             <th class="px-3 py-2 font-medium">Палаты</th>
                             <th class="px-3 py-2 font-medium">Упрощённая форма</th>
+                            <th class="px-3 py-2 font-medium">Автозаполнение</th>
+                            <th class="px-3 py-2 font-medium">Источник</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -127,6 +129,13 @@
                                     <td class="px-3 py-1"><input type="checkbox" checked="@dep.Settings.ShowOnFireReport" @onchange='(e) => ToggleSettings(dep, nameof(DepartmentSettings.ShowOnFireReport), e.Value is bool ? (bool)e.Value : false)' /></td>
                                     <td class="px-3 py-1"><input type="checkbox" checked="@dep.Settings.ShowOnWards" @onchange='(e) => ToggleSettings(dep, nameof(DepartmentSettings.ShowOnWards), e.Value is bool ? (bool)e.Value : false)' /></td>
                                     <td class="px-3 py-1"><input type="checkbox" checked="@dep.Settings.SimpleReportForm" @onchange='(e) => ToggleSettings(dep, nameof(DepartmentSettings.SimpleReportForm), e.Value is bool ? (bool)e.Value : false)' /></td>
+                                    <td class="px-3 py-1"><input type="checkbox" checked="@dep.Settings.AutoFillFromPrevious" @onchange='(e) => ToggleSettings(dep, nameof(DepartmentSettings.AutoFillFromPrevious), e.Value is bool ? (bool)e.Value : false)' /></td>
+                                    <td class="px-3 py-1">
+                                        <select class="fluent-input w-32" @bind="dep.Settings.AutoFillSource" @bind:after="() => SaveAutoFillSource(dep)" disabled="@(!dep.Settings.AutoFillFromPrevious)">
+                                            <option value="@AutoFillSource.PreviousDay">Вчера</option>
+                                            <option value="@AutoFillSource.LastAvailable">Последняя запись</option>
+                                        </select>
+                                    </td>
                                 </tr>
                             }
                         }

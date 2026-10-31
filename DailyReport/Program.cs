@@ -17,6 +17,7 @@ builder.Services.AddDbContext<ApplicationContext>(options => options.UseSqlite(
     builder.Configuration.GetConnectionString("localDb")));
 
 builder.Services.AddScoped<DepReportService>();
+builder.Services.AddScoped<AutoFillService>();
 builder.Services.AddScoped<SummaryService>();
 builder.Services.AddScoped<AdmissionStatsService>();
 builder.Services.AddScoped<FireReportService>();

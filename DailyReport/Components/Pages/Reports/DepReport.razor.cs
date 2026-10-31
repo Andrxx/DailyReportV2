@@ -20,6 +20,7 @@ namespace DailyReport.Components.Pages.Reports
     public partial class DepReport
     {
         [Inject] private DepReportService DepReportService { get; set; } = null!;
+        [Inject] private AutoFillService AutoFill { get; set; } = null!;
         [Inject] private PersonelService PersonelService { get; set; } = null!;
         [Inject] private ReportingCalendar Calendar { get; set; } = null!;
         [Inject] private IAccessControl AccessControl { get; set; } = null!;
@@ -246,6 +247,13 @@ namespace DailyReport.Components.Pages.Reports
         /// </summary>
         private async Task LoadReportAsync()
         {
+            // Текущие сутки: у отделений с флагом «Брать прошлые значения» недостающая строка
+            // создаётся из прошлой — та же логика, что в итоговой сводке. Прошлые сутки не трогаем.
+            if (!IsPastDay)
+            {
+                await Task.Run(() => AutoFill.EnsureFilled(ReportDate));
+            }
+
             Report = await Task.Run(() => DepReportService.GetByNumber(DepartmentId, ReportDate));
 
             if (Report is null)

@@ -91,7 +91,15 @@ public partial class DepartmentsManagement
             case nameof(DepartmentSettings.ShowOnFireReport): dep.Settings.ShowOnFireReport = value; break;
             case nameof(DepartmentSettings.ShowOnWards): dep.Settings.ShowOnWards = value; break;
             case nameof(DepartmentSettings.SimpleReportForm): dep.Settings.SimpleReportForm = value; break;
+            case nameof(DepartmentSettings.AutoFillFromPrevious): dep.Settings.AutoFillFromPrevious = value; break;
         }
+        SaveSettingsRow(dep.Settings);
+    }
+
+    /// <summary>Источник автозаполнения (вчера / последняя фактическая запись).</summary>
+    private void SaveAutoFillSource(Department dep)
+    {
+        if (dep?.Settings is null || !SettingsTableExists) return;
         SaveSettingsRow(dep.Settings);
     }
 

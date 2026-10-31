@@ -15,8 +15,9 @@ namespace DailyReport.Components.Pages.Reports
     /// <summary>
     /// Итоговая сводка по больнице за одни отчётные сутки (раздел 1).
     /// Таблица сводки только читается: данные берутся из сводок отделений и здесь не сохраняются.
-    /// Исключение — блок «Дежурная смена» под таблицей, он ведётся прямо здесь, как в V1,
-    /// и только за текущие отчётные сутки.
+    /// Исключения — блок «Дежурная смена» под таблицей, он ведётся прямо здесь, как в V1,
+    /// и только за текущие отчётные сутки, и автоматическое заполнение сводок отделений
+    /// с флагом «Брать прошлые значения» (см. AutoFillService) — тоже только за текущие сутки.
     /// </summary>
     public partial class FinalReport
     {
@@ -29,6 +30,7 @@ namespace DailyReport.Components.Pages.Reports
         };
 
         [Inject] private SummaryService SummaryService { get; set; } = null!;
+        [Inject] private AutoFillService AutoFill { get; set; } = null!;
         [Inject] private ReportingCalendar Calendar { get; set; } = null!;
         [Inject] private DutyService DutyService { get; set; } = null!;
         [Inject] private PersonelService PersonelService { get; set; } = null!;
@@ -497,6 +499,11 @@ namespace DailyReport.Components.Pages.Reports
             var config = SummaryConfigFactory.Create(AppConfig);
 
             var day = ReportDate;
+            // Единственная запись со стороны сводки: у отделений с флагом «Брать прошлые значения»
+            // недостающая строка за ТЕКУЩИЕ сутки создаётся из прошлой. Только приложение и только
+            // автоматически — пользователь сводки отделений отсюда не правит. За прошлые сутки
+            // метод ничего не делает (см. AutoFillService).
+            await Task.Run(() => AutoFill.EnsureFilled(day));
             Data = await Task.Run(() => SummaryService.Build(day, config));
             DutyDocs = await Task.Run(() => DutyService.GetForDay(day));
             ResetDutyDrafts();
