@@ -43,6 +43,13 @@ namespace DailyReport.Models.Reports
         /// <summary>Строка-итог внутри раздела, выделяется подсветкой</summary>
         public bool IsSubtotal { get; init; }
 
+        /// <summary>
+        /// Строка заливается светло-серым в ПЕЧАТНОЙ форме сводки, чтобы её было
+        /// видно на бумаге: «Состояло», «Состоит в отделении» и «Итого» по нозологиям.
+        /// На экране эта заливка не применяется.
+        /// </summary>
+        public bool PrintShaded { get; init; }
+
         /// <summary>Строка занимает обе колонки отделения (взрослые и дети вместе)</summary>
         public bool IsMerged { get; init; }
 

@@ -34,7 +34,7 @@ namespace DailyReport.Services.Reports
         public static List<SummaryRow> Rows() => new()
         {
             // --- движение ---
-            new() { Label = "Состояло", Section = SummarySection.Movement,
+            new() { Label = "Состояло", Section = SummarySection.Movement, PrintShaded = true,
                     Adults = r => r.existed, Children = r => r.existedChildren },
             new() { Label = "Поступило", Section = SummarySection.Movement,
                     Adults = r => r.income, Children = r => r.incomeChildrens },
@@ -49,6 +49,7 @@ namespace DailyReport.Services.Reports
             new() { Label = "Умерло", Section = SummarySection.Movement,
                     Adults = r => r.died, Children = r => r.diedChildrens },
             new() { Label = "Состоит в отделении", Section = SummarySection.Movement, IsSubtotal = true,
+                    PrintShaded = true,
                     Adults = r => r.present, Children = r => r.presentChildrens },
 
             // --- транспортабельность ---
@@ -128,7 +129,7 @@ namespace DailyReport.Services.Reports
             // как в V1), а не «Состоит в отделении» и не нозологии с уходом: лица по уходу
             // к нозологиям не относятся и попадают только в строку «Количество человек
             // в круглосуточном стационаре» ниже.
-            new() { Label = "Итого", Section = SummarySection.Nozology, IsSubtotal = true,
+            new() { Label = "Итого", Section = SummarySection.Nozology, IsSubtotal = true, PrintShaded = true,
                     Adults = r => r.CountDiseases(), Children = r => r.CountDiseasesChildren() },
 
             // --- уход ---

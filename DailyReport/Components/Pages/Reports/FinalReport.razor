@@ -152,11 +152,21 @@
                                 </tr>
                             }
 
-                            @foreach (var row in Data.Rows.Where(r => r.Row.Section == section))
+                            @foreach (var (row, rowIndex) in Data.Rows
+                                .Where(r => r.Row.Section == section)
+                                .Select((r, i) => (r, i)))
                             {
+                                @* Чередование серый/белый — только в «Движении»: остальные разделы
+                                   короткие. Печатная форма чередование не использует, у неё своя
+                                   заливка у отдельных строк (PrintShaded). *@
+                                var zebra = section == SummarySection.Movement && rowIndex % 2 == 1;
+                                var rowClass = "sum-row"
+                                    + (row.Row.IsSubtotal ? " sum-row-subtotal" : "")
+                                    + (zebra ? " sum-row-zebra" : "")
+                                    + (row.Row.PrintShaded ? " sum-row-print-shade" : "");
                                 if (row.Row.IsMerged)
                                 {
-                                    <tr class="sum-row @(row.Row.IsSubtotal ? "sum-row-subtotal" : "")">
+                                    <tr class="@rowClass">
                                         <td class="sum-label">@row.Row.Label</td>
                                         @for (var i = 0; i < Data.Columns.Count; i++)
                                         {
@@ -171,7 +181,7 @@
                                 }
                                 else
                                 {
-                                    <tr class="sum-row @(row.Row.IsSubtotal ? "sum-row-subtotal" : "")">
+                                    <tr class="@rowClass">
                                         <td class="sum-label">@row.Row.Label</td>
                                         @for (var i = 0; i < Data.Columns.Count; i++)
                                         {
